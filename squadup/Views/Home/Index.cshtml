@@ -1,0 +1,56 @@
+﻿@model SquadModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <form method="post">
+        <div id="form-group">
+            <label name="groupId">Search your group by entering your group code</label>
+        <div id="form-group">
+            <input type="text" name="groupId" />
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+    <h4 style="color:purple">
+        <b>Group code:</b>@ViewBag.groupId<br />
+    </h4>
+
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+        Create Group
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Create Squad</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post">
+                        <div class="form-group">
+                            <label asp-for="squadName" name="squadName">Group Name</label>
+                            <input asp-for="squadName" name="squadName" type="text" class="form-control" placeholder="Enter Group Name" required>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="unparsedMembers" name="unparsedMembers">List of Names (comma-separated)</label>
+                            <textarea asp-for="unparsedMembers" class="form-control" name="unparsedMembers" rows="3" placeholder="Enter Names"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
