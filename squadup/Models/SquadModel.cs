@@ -8,11 +8,9 @@
 
         public DateTimeOffset createdAt { get; set; }
 
-        public string[] members { get; set;}
+        public List<SquadMemberModel>? members { get; set;}
 
         public List<SquadEventModel>? events { get; set; }
 
-        public string unparsedMembers { get; set; }
-        
     }
 }

@@ -1,4 +1,6 @@
-﻿using Dapper;
+﻿using System.Data;
+using System.Transactions;
+using Dapper;
 using squadup.Models;
 using squadup.Utility;
 
@@ -14,9 +16,42 @@ namespace squadup.Repository
             _context = context;
         }
 
-        public void CreateGroup(SquadModel group)
+        public void CreateGroup(FormInputModel.Squad group)
         {
-            throw new NotImplementedException();
+            string query = $"INSERT INTO Squad (squadName) VALUES (@squadName)";
+
+            IDbTransaction transaction = null;
+
+            try
+            {
+                using (var conn = _context.CreateConnection())
+                {
+                    //open the connection and begin a transaction
+                    conn.Open();
+                    transaction = conn.BeginTransaction();
+
+                    //execute first query
+                    conn.Execute(query, new { squadName = group.squadName }, transaction);
+
+                    // Retrieve the generated squad ID (assuming it's a serial column)
+                    long squadId = conn.ExecuteScalar<long>("SELECT LASTVAL()", null, transaction);
+
+                    //insert each member
+                    foreach (var memberName in group.squadMembers)
+                    {
+                        string memberInsertQuery = "INSERT INTO SquadMember (membername, squadid) VALUES (@memberName, @squadId)";
+                        conn.Execute(memberInsertQuery, new { memberName, squadId }, transaction);
+                    }
+
+                    // Commit the transaction
+                    transaction.Commit();
+                }
+            }
+            catch (Exception ex)
+            {
+                transaction?.Rollback();
+                Console.WriteLine(ex);
+            }
         }
 
         public void DeleteGroup(string groupId)
@@ -42,7 +77,7 @@ namespace squadup.Repository
                     }
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
@@ -52,7 +87,7 @@ namespace squadup.Repository
 
         public void GetSingleGroup(string groupId)
         {
-            if(string.IsNullOrEmpty(groupId))
+            if (string.IsNullOrEmpty(groupId))
             {
                 Console.WriteLine("missing groupId");
             }

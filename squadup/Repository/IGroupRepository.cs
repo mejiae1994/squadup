@@ -4,7 +4,7 @@ namespace squadup.Repository
 {
     public interface IGroupRepository
     {
-        void CreateGroup(SquadModel group);
+        void CreateGroup(FormInputModel.Squad group);
 
         void DeleteGroup(string groupId);
 

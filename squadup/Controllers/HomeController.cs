@@ -27,20 +27,14 @@ namespace squadup.Controllers
 
 
         [HttpPost]
-        public IActionResult Index(SquadModel group)
+        public IActionResult Index(FormInputModel.Squad group)
         {
-            Console.WriteLine(group.squadName);
-            group.members = parseCommaString(group.unparsedMembers);
-
-
-            ViewBag.squadName = group.squadName;
-            ViewBag.members = group.unparsedMembers;
+            group.squadMembers = parseCommaString(group.unparsedMembers);
 
             //insert params into database
-            // _groupRepository.createGroup(group);
+            _groupRepository.CreateGroup(group);
 
-
-            return View();
+            return View("Index");
         }
 
         public string[] parseCommaString(string unparsedText)
