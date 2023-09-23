@@ -25,3 +25,13 @@ CREATE TABLE IF NOT EXISTS public.squadevent
     squadid bigint,
     CONSTRAINT squadevent_squad_fk FOREIGN KEY (squadid) REFERENCES public.squad (squadid) MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION
 );
+
+
+ALTER TABLE public.squadmember DROP CONSTRAINT squadmember_squad_fk;
+
+-- Then, add a new foreign key constraint with ON DELETE CASCADE
+ALTER TABLE public.squadmember
+ADD CONSTRAINT squadmember_squad_fk
+FOREIGN KEY (squadid)
+REFERENCES public.squad (squadid)
+ON DELETE CASCADE;

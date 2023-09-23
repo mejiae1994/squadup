@@ -16,7 +16,7 @@ namespace squadup.Repository
             _context = context;
         }
 
-        public void CreateGroup(FormInputModel.Squad group)
+        public long CreateSquad(FormInputModel.Squad squad)
         {
             string query = $"INSERT INTO Squad (squadName) VALUES (@squadName)";
 
@@ -31,13 +31,13 @@ namespace squadup.Repository
                     transaction = conn.BeginTransaction();
 
                     //execute first query
-                    conn.Execute(query, new { squadName = group.squadName }, transaction);
+                    conn.Execute(query, new { squadName = squad.squadName }, transaction);
 
                     // Retrieve the generated squad ID (assuming it's a serial column)
                     long squadId = conn.ExecuteScalar<long>("SELECT LASTVAL()", null, transaction);
 
                     //insert each member
-                    foreach (var memberName in group.squadMembers)
+                    foreach (var memberName in squad.squadMembers)
                     {
                         string memberInsertQuery = "INSERT INTO SquadMember (membername, squadid) VALUES (@memberName, @squadId)";
                         conn.Execute(memberInsertQuery, new { memberName, squadId }, transaction);
@@ -45,21 +45,44 @@ namespace squadup.Repository
 
                     // Commit the transaction
                     transaction.Commit();
+                    return squadId;
                 }
             }
             catch (Exception ex)
             {
                 transaction?.Rollback();
                 Console.WriteLine(ex);
+                return 0;
+            }
+
+        }
+
+        public string UpdateSquad(long squadId, string uniqueId)
+        {
+            string query = "UPDATE Squad SET slug = @uniqueId WHERE squadId = @squadId RETURNING slug";
+
+            try
+            {
+                using (var conn = _context.CreateConnection())
+                {
+                    string slug = conn.ExecuteScalar<string>(query, new { uniqueId, squadId });
+
+                    return slug;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return null;
             }
         }
 
-        public void DeleteGroup(string groupId)
+        public void DeleteSquad(string groupId)
         {
             throw new NotImplementedException();
         }
 
-        public void GetAllGroups()
+        public void GetAllSquads()
         {
             string query = "Select * from squad";
 
@@ -85,15 +108,38 @@ namespace squadup.Repository
             Console.WriteLine("done retrieving all groups");
         }
 
-        public void GetSingleGroup(string groupId)
+        public SquadModel GetSingleSquad(string slugId)
         {
-            if (string.IsNullOrEmpty(groupId))
+            string squadQuery = "SELECT * FROM squad WHERE slug = @slugId";
+            string squadMemberQuery = "SELECT * FROM squadmember WHERE squadId = (SELECT squadid FROM squad WHERE slug = @slugId LIMIT 1)";
+
+            SquadModel squadModel = null;
+
+            try
             {
-                Console.WriteLine("missing groupId");
+                using (var conn = _context.CreateConnection())
+                {
+                    var multi = conn.QueryMultiple(squadQuery + ";" + squadMemberQuery, new { slugId });
+
+                    var squad = multi.Read<SquadModel>().SingleOrDefault();
+                    var squadMembers = multi.Read<SquadMemberModel>().ToList();
+
+                    squadModel  = new SquadModel()
+                    {
+                        squadId = squad.squadId,
+                        squadName = squad.squadName,
+                        slug = squad.slug,
+                        createdAt = squad.createdAt,
+                        members = squadMembers,
+                    };
+
+                    return squadModel;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine($"getting single group for {groupId}");
+                Console.WriteLine(ex.Message);
+                return squadModel;
             }
         }
     }
