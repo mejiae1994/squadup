@@ -58,9 +58,10 @@ namespace squadup.Controllers
                 resultMessage = sucess ? $"Squad created successfully with slug: {uniqueId}" : "Squad creation Failed";
 
                 TempData["SuccessMessage"] = resultMessage;
+                TempData["Slug"] = uniqueId;
 
                 // Redirect to another page
-                return RedirectToAction("Index", "Squad", new { slug = uniqueId });
+                return RedirectToAction("Index", "Home");
             }
 
             return View(squad);

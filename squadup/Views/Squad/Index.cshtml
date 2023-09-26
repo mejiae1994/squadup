@@ -1,19 +1,28 @@
 ﻿@model squadup.Models.SquadModel
 
 <div class="text-center">
-    @if (!string.IsNullOrEmpty(Model.squadName))
+    @Html.Partial("_SquadSearchPartial", new FormInputModel.Squad())
+
+    @if (!string.IsNullOrEmpty(Model?.squadName))
     {
-        <h1>Squad Page for @Model.squadName</h1>
+        <h1>Squad Page found for @Model.squadName</h1>
     }
     else
     {
-        <h1>Empty Squad Page</h1>
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <h1>@TempData["SuccessMessage"]</h1>
+        }
+        else
+        {
+            <h1>Empty Squad Page</h1>
+        }
     }
-  
+
     <div class="container">
         <h2 class="mt-4">Squad Members:</h2>
 
-        @if (Model.members != null && Model.members.Count > 0)
+        @if (Model?.members?.Count > 0)
         {
             <ul class="list-group mt-4">
                 @foreach (var member in Model.members)
@@ -27,5 +36,4 @@
             <p class="mt-4">No members found.</p>
         }
     </div>
-
 </div>

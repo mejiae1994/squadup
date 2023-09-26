@@ -9,6 +9,8 @@
             public string? unparsedMembers { get; set; }
 
             public string[]? squadMembers { get; set; }
+
+            public string? slug { get; set; }
         }
 
         public class SquadMember

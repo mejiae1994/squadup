@@ -21,21 +21,41 @@ namespace squadup.Controllers
         [HttpGet("squad/{slug?}")]
         public IActionResult Index(string slug)
         {
-            Console.WriteLine(slug);
-
+            //if we visit the squad path with no param  then just return the regular view
             SquadModel squadViewData = null;
-
-            if (!string.IsNullOrEmpty(slug))
-            {
-                squadViewData = _groupRepository.GetSingleSquad(slug);
-            }
-
-            if(squadViewData != null) 
+            if (string.IsNullOrEmpty(slug))
             {
                 return View(squadViewData);
             }
 
-            return View();
+            squadViewData = _groupRepository.GetSingleSquad(slug);
+
+            if (squadViewData != null)
+            {
+                return View(squadViewData);
+            }
+            else
+            {
+                TempData["SuccessMessage"] = $"No squad found for the following code: {slug}";
+                return View();
+            }
+        }
+
+        [HttpPost]
+        public IActionResult Index(FormInputModel.Squad squad)
+        {
+            // Check if the provided slug is not empty
+            if (!string.IsNullOrEmpty(squad.slug))
+            {
+                // Redirect to the GET action with the provided slug
+                return RedirectToAction("Index", "Squad", new { slug = squad.slug });
+            }
+
+            // If the slug is empty, you can handle it as needed, e.g., show an error message
+            TempData["ErrorMessage"] = "Slug cannot be empty.";
+
+            // Redirect back to the GET action without a slug
+            return RedirectToAction("Index", "Squad");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
