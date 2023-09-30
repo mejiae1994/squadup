@@ -1,0 +1,48 @@
+﻿@model List<squadup.Models.EventMemberAttendanceModel>
+
+<!-- Modal -->
+<div class="modal fade" id="eventAttendanceModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">@Model.FirstOrDefault()?.eventName</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body-event">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Member Name</th>
+                            <th>Attendance Code</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (EventMemberAttendanceModel item in Model)
+                        {
+                            @* work on post request update member attendance *@
+                            <tr>
+                                <td>@item.memberName</td>
+                                <td>
+                                    <select class="form-select">
+                                        <option value="@AttendanceCode.NotAttending.ToString()">Not Attending</option>
+                                        <option value="@AttendanceCode.Maybe.ToString()">Maybe</option>
+                                        <option value="@AttendanceCode.Attending.ToString()">Attending</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Understood</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+

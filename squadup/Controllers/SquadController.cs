@@ -58,6 +58,32 @@ namespace squadup.Controllers
             return RedirectToAction("Index", "Squad");
         }
 
+        [HttpPost]
+        public IActionResult Destination(FormInputModel.SquadEvent squadEvent)
+        {
+            
+            string slugId = _groupRepository.AddSquadEvent(squadEvent);
+
+            if(!string.IsNullOrEmpty(slugId))
+            {
+                return RedirectToAction("Index", "Squad", new { slug = slugId });
+            }
+
+            // If the slug is empty, you can handle it as needed, e.g., show an error message
+            TempData["ErrorMessage"] = "Can't create squad event";
+
+            // Redirect back to the GET action without a slug
+            return View();
+        }
+
+        [HttpGet("squad/GetEventAttendance")]
+        public IActionResult GetEventAttendance(int eventId)
+        {
+            var eventAttendance = _groupRepository.GetEventMemberAttendance(eventId);
+
+            return PartialView("_ViewEventAttendancePartial", eventAttendance);
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

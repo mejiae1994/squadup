@@ -20,20 +20,57 @@
     }
 
     <div class="container">
-        <h2 class="mt-4">Squad Members:</h2>
+        <h2 class="mt-4">Squad Members found: @Model?.members?.Count</h2>
 
-        @if (Model?.members?.Count > 0)
+        <div class="list-group-container">
+            @if (Model?.members?.Count > 0)
+            {
+                <ul class="list-group">
+                    @foreach (var member in Model.members)
+                    {
+                        <li class="list-group-item">@member.memberName</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="mt-4">No members found.</p>
+            }
+        </div>
+    </div>
+    @* events section *@
+    <div class="container">
+        <h2 class="mt-4">Squad Events:</h2>
+
+        @if (Model?.events?.Count > 0)
         {
-            <ul class="list-group mt-4">
-                @foreach (var member in Model.members)
+            <ul class="list-group list-group-horizontal gap-4">
+                @foreach (var squadEvent in Model.events)
                 {
-                    <li class="list-group-item">@member.memberName</li>
+                    <div class="card" style="width: 18rem;" data-event-id="@squadEvent.eventId">
+                        <div class="card-body">
+                            <h5 class="card-title">@squadEvent.eventName</h5>
+                            <p class="card-text">When: @squadEvent.eventDate</p>
+                        </div>
+                    </div>
                 }
             </ul>
         }
         else
         {
-            <p class="mt-4">No members found.</p>
+            <p class="mt-4">No Events found.</p>
         }
+
+
+        <div id="eventAttendanceContainer"></div>
+
     </div>
+    <div class="fluid-container mt-4">
+        @if (Model?.squadId > 0)
+        {
+            ViewBag.eventSquadId = Model.squadId;
+
+            @Html.Partial("_CreateDestinationPartial", new FormInputModel.SquadEvent())
+        }
+    </div>    
 </div>

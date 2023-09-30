@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Transactions;
 using Dapper;
 using squadup.Models;
 using squadup.Utility;
@@ -57,21 +56,101 @@ namespace squadup.Repository
 
         }
 
-        public string UpdateSquad(long squadId, string uniqueId)
+        public string UpdateSquad(long squadId, string slugId)
         {
-            string query = "UPDATE Squad SET slug = @uniqueId WHERE squadId = @squadId RETURNING slug";
+            string query = "UPDATE Squad SET slug = @slugId WHERE squadId = @squadId RETURNING slug";
 
             try
             {
                 using (var conn = _context.CreateConnection())
                 {
-                    string slug = conn.ExecuteScalar<string>(query, new { uniqueId, squadId });
+                    string slug = conn.ExecuteScalar<string>(query, new { slugId, squadId });
 
                     return slug;
                 }
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex);
+                return null;
+            }
+        }
+
+        public List<EventMemberAttendanceModel> GetEventMemberAttendance(long eventId) 
+        {
+            //we want a list that have member, attendancestatus for the event that is passed in
+            string query = "SELECT * FROM eventmemberattendance WHERE eventId = @eventId";
+            string eventQuery = "SELECT e.attendanceId, e.eventId, ev.eventName, e.memberId, s.memberName, e.attendanceCode FROM eventmemberattendance e JOIN squadmember s on e.memberId = s.memberId JOIN squadevent ev on e.eventId = ev.eventId WHERE e.eventId = @eventId";
+
+            List<EventMemberAttendanceModel> eventMemberAttendance = null;
+
+            try
+            {
+                using (var conn = _context.CreateConnection())
+                {
+                    eventMemberAttendance = conn.Query<EventMemberAttendanceModel>(eventQuery, new { eventId }).ToList();
+                    return eventMemberAttendance;
+                }
+
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+                return null;
+            }
+        }
+
+        public string AddSquadEvent(FormInputModel.SquadEvent squadEvent)
+        {
+            string eventInsertQuery = "INSERT INTO squadevent (eventname, eventdate, squadId) VALUES (@eventName, @eventDate, @squadId)";
+
+            string squadQuery = "SELECT * FROM squad WHERE squadId = @squadId";
+            string squadMemberQuery = "SELECT * FROM squadmember WHERE squadId = @squadId";
+
+
+            IDbTransaction transaction = null;
+
+            try
+            {
+                using (var conn = _context.CreateConnection())
+                {
+                    conn.Open();
+                    transaction = conn.BeginTransaction();
+
+                    //execute first query
+                    conn.Execute(eventInsertQuery, new { squadEvent.eventName, squadEvent.eventDate, squadEvent.squadId }, transaction);
+
+                    // Retrieve the generated eventId (assuming it's a serial column)
+                    long eventId = conn.ExecuteScalar<long>("SELECT LASTVAL()", null, transaction);
+
+                    //now I have eventId, squadId, I need to retrieve all members from squadmember
+                    var multi = conn.QueryMultiple(squadQuery + ';' + squadMemberQuery, new { squadEvent.squadId}, transaction);
+
+                    string slug = multi.Read<SquadModel>().Select(x => x.slug).SingleOrDefault();
+                    var squadMembers = multi.Read<SquadMemberModel>().ToList();
+
+                    int attendanceCode = (int)AttendanceCode.NotAttending;
+
+                    //insert each member
+                    //need to figure out why column says it does not exist
+
+                    string memberInsertQuery = "INSERT INTO public.eventmemberattendance (eventId, memberId, attendanceCode) VALUES (@eventId, @memberId, @attendancecode)";
+
+                    foreach (var member in squadMembers)
+                    {
+                        //note to self, anonymous object properties have to match sql column names
+                        conn.Execute(memberInsertQuery, new { eventId, member.memberId, attendanceCode }, transaction);
+                        
+                    }
+
+                    // Commit the transaction
+                    transaction.Commit();
+                    return slug;
+                }
+            }
+            catch (Exception ex)
+            {
+                transaction?.Rollback();
                 Console.WriteLine(ex);
                 return null;
             }
@@ -112,6 +191,7 @@ namespace squadup.Repository
         {
             string squadQuery = "SELECT * FROM squad WHERE slug = @slugId";
             string squadMemberQuery = "SELECT * FROM squadmember WHERE squadId = (SELECT squadid FROM squad WHERE slug = @slugId LIMIT 1)";
+            string eventQuery = "SELECT * FROM squadevent WHERE squadId = (SELECT squadid FROM squad WHERE slug = @slugId LIMIT 1)";
 
             SquadModel squadModel = null;
 
@@ -119,18 +199,20 @@ namespace squadup.Repository
             {
                 using (var conn = _context.CreateConnection())
                 {
-                    var multi = conn.QueryMultiple(squadQuery + ";" + squadMemberQuery, new { slugId });
+                    var multi = conn.QueryMultiple(squadQuery + ";" + squadMemberQuery + ";" + eventQuery, new { slugId });
 
                     var squad = multi.Read<SquadModel>().SingleOrDefault();
                     var squadMembers = multi.Read<SquadMemberModel>().ToList();
+                    var squadEvents = multi.Read<SquadEventModel>().ToList();
 
-                    squadModel  = new SquadModel()
+                    squadModel = new SquadModel()
                     {
                         squadId = squad.squadId,
                         squadName = squad.squadName,
                         slug = squad.slug,
                         createdAt = squad.createdAt,
                         members = squadMembers,
+                        events = squadEvents,
                     };
 
                     return squadModel;

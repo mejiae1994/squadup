@@ -20,3 +20,18 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.card {
+    cursor: pointer;
+}
+
+.card:hover {
+    opacity: .85;
+}
+
+.list-group-container {
+    overflow-y: auto; /* Enable vertical scrolling */
+    border: 1px solid #ccc; /* Optional border for aesthetics */
+    border-radius: .5rem;
+    height: 30vh; /* Adjust the height as needed */
+}

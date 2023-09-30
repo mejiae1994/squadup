@@ -35,3 +35,30 @@ ADD CONSTRAINT squadmember_squad_fk
 FOREIGN KEY (squadid)
 REFERENCES public.squad (squadid)
 ON DELETE CASCADE;
+
+
+CREATE TABLE attendanceType (
+	attendanceCode serial PRIMARY KEY,
+	attendanceDescription character varying(255) NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS public.eventmemberattendance
+(
+    attendanceid serial primary key,
+    eventid bigint,
+    memberid bigint,
+    attendanceCode bigint,
+    CONSTRAINT attendance_event_fk FOREIGN KEY (eventid)
+        REFERENCES public.squadevent (eventid) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE, -- Enable cascading delete on the eventid column
+    CONSTRAINT attendance_member_fk FOREIGN KEY (memberid)
+        REFERENCES public.squadmember (memberid) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE, -- Enable cascading delete on the memberid column
+	CONSTRAINT attendance_code_fk FOREIGN KEY (attendanceCode)
+        REFERENCES public.attendancetype (attendanceCode) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE -- Enable cascading delete on the memberid column
+)

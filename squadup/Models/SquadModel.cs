@@ -2,7 +2,7 @@
 {
     public class SquadModel
     {
-        public string squadId { get; set; }
+        public long squadId { get; set; }
 
         public string squadName { get; set; }
 

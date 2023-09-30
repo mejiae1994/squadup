@@ -1,7 +1,7 @@
 ﻿@model FormInputModel.Squad
 
 <div class="text-center">
-    
+
 
     <!-- Button trigger modal -->
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalCenter">
@@ -9,7 +9,8 @@
     </button>
 
     <!-- Modal -->
-    <div class="modal fade" id="exampleModalCenter" tabindex="-1" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" aria-labelledby="exampleModalLongTitle"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -20,11 +21,13 @@
                     <form method="post" id="createSquad">
                         <div class="mb-3">
                             <label for="squadName" class="form-label">Group Name</label>
-                            <input asp-for="squadName" name="squadName" type="text" class="form-control" id="squadName" placeholder="Enter Group Name" required>
+                            <input asp-for="squadName" name="squadName" type="text" class="form-control" id="squadName"
+                                placeholder="Enter Group Name" required>
                         </div>
                         <div class="mb-3">
                             <label for="unparsedMembers" class="form-label">List of Names (comma-separated)</label>
-                            <textarea asp-for="unparsedMembers" name="unparsedMembers" class="form-control" id="unparsedMembers" rows="3" placeholder="Enter Names"></textarea>
+                            <textarea asp-for="unparsedMembers" name="unparsedMembers" class="form-control"
+                                id="unparsedMembers" rows="3" placeholder="Enter Names" required></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary">Save changes</button>
                     </form>
@@ -43,7 +46,8 @@
             <p>@TempData["SuccessMessage"]</p>
             <hr>
             <p>
-                Congratulations! Your squad has been created. You can view it <a href="@Url.Action("Index", "Squad", new { slug =TempData["Slug"]})">here</a>.
+                Congratulations! Your squad has been created. You can view it <a
+                    href="@Url.Action("Index", "Squad", new { slug =TempData["Slug"]})">here</a>.
             </p>
         </div>
     }
