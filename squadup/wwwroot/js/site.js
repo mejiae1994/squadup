@@ -3,18 +3,49 @@
 
 // Write your JavaScript code.
 $(document).ready(function () {
-    // Attach a click event handler to each event card
     $('.card').click(function (e) {
-        // Get the event ID from the clicked card using .data('event-id')
         e.preventDefault();
         var eventId = $(this).data('event-id');
         loadEventAttendance(eventId);
        
     });
 
+    //because the button that triggers this is handle dynamically, we need to use event delegation from top down
+    $(document).on('click', '#saveAttendanceButton', function (e) {
+        e.preventDefault();
+        updateEventAttendance();
+    });
+
+
+    function updateEventAttendance() {
+        $("input[type=radio]:checked").each(function () {
+            let memberId = $(this)[0].id
+            let attendanceCode = $(this).val();
+            let eventId = $(this).data("event-id");
+
+            console.log(memberId);
+            console.log(attendanceCode);
+            console.log(eventId);
+           
+            $.ajax({
+                url: "/squad/UpdateEventAttendance", 
+                type: "POST", 
+                data: { memberId: memberId, attendanceCode: attendanceCode, eventId: eventId },
+                success: function (data) {
+                    // Handle success, e.g., show a confirmation message
+                    alert("Attendance updated successfully!");
+                },
+                error: function (error) {
+                    
+                    console.log(error);
+                }
+            });
+        });
+    }
+
 
     function loadEventAttendance(eventId) {
-        
+
         $.ajax({
             url: "/squad/GetEventAttendance?eventId=" + eventId,
             type: "GET",

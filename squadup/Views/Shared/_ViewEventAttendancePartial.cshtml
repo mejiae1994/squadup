@@ -13,21 +13,27 @@
                     <thead>
                         <tr>
                             <th>Member Name</th>
-                            <th>Attendance Code</th>
+                            <th>Attendance</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (EventMemberAttendanceModel item in Model)
                         {
-                            @* work on post request update member attendance *@
                             <tr>
                                 <td>@item.memberName</td>
                                 <td>
-                                    <select class="form-select">
-                                        <option value="@AttendanceCode.NotAttending.ToString()">Not Attending</option>
-                                        <option value="@AttendanceCode.Maybe.ToString()">Maybe</option>
-                                        <option value="@AttendanceCode.Attending.ToString()">Attending</option>
-                                    </select>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="inlineRadioOptions_@item.memberId" id="@item.memberId" data-event-id="@item.eventId" value="@((int)AttendanceCode.NotAttending)" @(item.attendanceCode == AttendanceCode.NotAttending ? "checked" : "")>
+                                        <label class="form-check-label" for="inlineRadio1">Not Attending</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="inlineRadioOptions_@item.memberId" id="@item.memberId" data-event-id="@item.eventId" value="@((int)AttendanceCode.Maybe)" @(item.attendanceCode == AttendanceCode.Maybe ? "checked" : "")>
+                                        <label class="form-check-label" for="inlineRadio2">Maybe</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="inlineRadioOptions_@item.memberId" id="@item.memberId" data-event-id="@item.eventId" value="@((int)AttendanceCode.Attending)" @(item.attendanceCode == AttendanceCode.Attending ? "checked" : "")>
+                                        <label class="form-check-label" for="inlineRadio3">Attending</label>
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -36,7 +42,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Understood</button>
+                <button id="saveAttendanceButton" type="button" class="btn btn-primary">Save</button>
             </div>
         </div>
     </div>

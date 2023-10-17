@@ -2,6 +2,7 @@
 using squadup.Models;
 using squadup.Repository;
 using System.Diagnostics;
+using static squadup.Models.FormInputModel;
 
 namespace squadup.Controllers
 {
@@ -82,6 +83,23 @@ namespace squadup.Controllers
             var eventAttendance = _groupRepository.GetEventMemberAttendance(eventId);
 
             return PartialView("_ViewEventAttendancePartial", eventAttendance);
+        }
+
+        [HttpPost]
+        public IActionResult UpdateEventAttendance(int memberId, int attendanceCode, int eventId)
+        {
+
+            EventAttendance attendance = new EventAttendance
+            {
+                memberId = memberId,
+                attendanceCode = (AttendanceCode)attendanceCode,
+                eventId = eventId,
+            };
+
+            Console.WriteLine(attendance);
+
+            // Return a response (e.g., success message)
+            return Json(new { success = true });
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

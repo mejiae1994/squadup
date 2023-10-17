@@ -27,5 +27,14 @@
 
             public DateTime eventDate { get; set; }
         }
+
+        public class EventAttendance
+        {
+            public long memberId { get; set; }
+
+            public AttendanceCode attendanceCode { get; set; }
+
+            public long eventId { get; set; }
+        }
     }
 }
