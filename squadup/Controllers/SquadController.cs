@@ -62,10 +62,9 @@ namespace squadup.Controllers
         [HttpPost]
         public IActionResult Destination(FormInputModel.SquadEvent squadEvent)
         {
-            
             string slugId = _groupRepository.AddSquadEvent(squadEvent);
 
-            if(!string.IsNullOrEmpty(slugId))
+            if (!string.IsNullOrEmpty(slugId))
             {
                 return RedirectToAction("Index", "Squad", new { slug = slugId });
             }
@@ -96,10 +95,21 @@ namespace squadup.Controllers
                 eventId = eventId,
             };
 
-            Console.WriteLine(attendance);
+            var eventAttendance = _groupRepository.UpdateEventMemberAttendance(attendance);
+            return PartialView("_ViewEventAttendancePartial", eventAttendance);
+        }
 
-            // Return a response (e.g., success message)
-            return Json(new { success = true });
+        [HttpPost]
+        public IActionResult DeleteSquadMember(long memberId)
+        {
+            bool success = _groupRepository.DeleteSquadMember(memberId);
+
+            if (success)
+            {
+                return Json(new { success = true, message = "Member deleted" });
+            }
+
+            return Json(new { success = false, message = "Failed to delete member" });
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

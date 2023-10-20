@@ -28,7 +28,11 @@
                 <ul class="list-group">
                     @foreach (var member in Model.members)
                     {
-                        <li class="list-group-item">@member.memberName</li>
+                        <li class="list-group-item">
+                            <span>@member.memberName</span>
+                            <button id="deleteSquadMember" class="btn btn-danger"
+                                data-member-id="@member.memberId">Delete</button>
+                        </li>
                     }
                 </ul>
             }

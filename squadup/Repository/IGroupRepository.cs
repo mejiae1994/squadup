@@ -10,9 +10,13 @@ namespace squadup.Repository
 
         List<EventMemberAttendanceModel> GetEventMemberAttendance(long eventId);
 
+        List<EventMemberAttendanceModel> UpdateEventMemberAttendance(FormInputModel.EventAttendance attendance);
+
         string AddSquadEvent(FormInputModel.SquadEvent squadEvent);
 
         void DeleteSquad(string squadId);
+
+        bool DeleteSquadMember(long squadMemberId);
 
         SquadModel GetSingleSquad(string slugId);
 

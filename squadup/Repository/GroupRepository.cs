@@ -76,12 +76,9 @@ namespace squadup.Repository
             }
         }
 
-        public List<EventMemberAttendanceModel> GetEventMemberAttendance(long eventId) 
+        public List<EventMemberAttendanceModel> GetEventMemberAttendance(long eventId)
         {
-            //we want a list that have member, attendancestatus for the event that is passed in
-            string query = "SELECT * FROM eventmemberattendance WHERE eventId = @eventId";
             string eventQuery = "SELECT e.attendanceId, e.eventId, ev.eventName, e.memberId, s.memberName, e.attendanceCode FROM eventmemberattendance e JOIN squadmember s on e.memberId = s.memberId JOIN squadevent ev on e.eventId = ev.eventId WHERE e.eventId = @eventId";
-
             List<EventMemberAttendanceModel> eventMemberAttendance = null;
 
             try
@@ -93,7 +90,7 @@ namespace squadup.Repository
                 }
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 return null;
@@ -124,7 +121,7 @@ namespace squadup.Repository
                     long eventId = conn.ExecuteScalar<long>("SELECT LASTVAL()", null, transaction);
 
                     //now I have eventId, squadId, I need to retrieve all members from squadmember
-                    var multi = conn.QueryMultiple(squadQuery + ';' + squadMemberQuery, new { squadEvent.squadId}, transaction);
+                    var multi = conn.QueryMultiple(squadQuery + ';' + squadMemberQuery, new { squadEvent.squadId }, transaction);
 
                     string slug = multi.Read<SquadModel>().Select(x => x.slug).SingleOrDefault();
                     var squadMembers = multi.Read<SquadMemberModel>().ToList();
@@ -140,7 +137,7 @@ namespace squadup.Repository
                     {
                         //note to self, anonymous object properties have to match sql column names
                         conn.Execute(memberInsertQuery, new { eventId, member.memberId, attendanceCode }, transaction);
-                        
+
                     }
 
                     // Commit the transaction
@@ -222,6 +219,63 @@ namespace squadup.Repository
             {
                 Console.WriteLine(ex.Message);
                 return squadModel;
+            }
+        }
+
+        List<EventMemberAttendanceModel> IGroupRepository.UpdateEventMemberAttendance(FormInputModel.EventAttendance attendance)
+        {
+            string updateQuery = "UPDATE eventmemberattendance SET attendanceCode = @attendanceCode WHERE memberId = @memberId AND eventId = @eventId";
+            string selectQuery = "SELECT e.attendanceId, e.eventId, ev.eventName, e.memberId, s.memberName, e.attendanceCode FROM eventmemberattendance e JOIN squadmember s on e.memberId = s.memberId JOIN squadevent ev on e.eventId = ev.eventId WHERE e.eventId = @eventId";
+
+            List<EventMemberAttendanceModel> eventMemberAttendance = null;
+
+            IDbTransaction transaction = null;
+
+            try
+            {
+                using (var conn = _context.CreateConnection())
+                {
+                    conn.Open();
+                    transaction = conn.BeginTransaction();
+                    conn.Query(updateQuery, new { attendance.attendanceCode, attendance.memberId, attendance.eventId }, transaction);
+
+                    eventMemberAttendance = conn.Query<EventMemberAttendanceModel>(selectQuery, new { attendance.eventId }).ToList();
+
+                    transaction.Commit();
+                    return eventMemberAttendance;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                transaction?.Rollback();
+                Console.WriteLine(ex);
+                return null;
+            }
+        }
+
+        bool IGroupRepository.DeleteSquadMember(long squadMemberId)
+        {
+            string deleteQuery = "DELETE FROM SquadMember WHERE memberId = @MemberId";
+            bool success = false;
+
+            try
+            {
+                using (var conn = _context.CreateConnection())
+                {
+                    int rowsAffected = conn.Execute(deleteQuery, new { MemberId = squadMemberId });
+
+                    if (rowsAffected > 0)
+                    {
+                        success = true;
+                    }
+                    return success;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return success;
             }
         }
     }

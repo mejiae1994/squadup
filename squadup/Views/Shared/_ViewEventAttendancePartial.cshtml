@@ -1,7 +1,8 @@
 ﻿@model List<squadup.Models.EventMemberAttendanceModel>
 
 <!-- Modal -->
-<div class="modal fade" id="eventAttendanceModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="eventAttendanceModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -23,15 +24,24 @@
                                 <td>@item.memberName</td>
                                 <td>
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="inlineRadioOptions_@item.memberId" id="@item.memberId" data-event-id="@item.eventId" value="@((int)AttendanceCode.NotAttending)" @(item.attendanceCode == AttendanceCode.NotAttending ? "checked" : "")>
+                                        <input class="form-check-input" type="radio"
+                                            name="inlineRadioOptions_@item.memberId" id="@item.memberId"
+                                            data-event-id="@item.eventId" value="@((int)AttendanceCode.NotAttending)"
+                                        @(item.attendanceCode == AttendanceCode.NotAttending ? "checked" : "")>
                                         <label class="form-check-label" for="inlineRadio1">Not Attending</label>
                                     </div>
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="inlineRadioOptions_@item.memberId" id="@item.memberId" data-event-id="@item.eventId" value="@((int)AttendanceCode.Maybe)" @(item.attendanceCode == AttendanceCode.Maybe ? "checked" : "")>
+                                        <input class="form-check-input" type="radio"
+                                            name="inlineRadioOptions_@item.memberId" id="@item.memberId"
+                                            data-event-id="@item.eventId" value="@((int)AttendanceCode.Maybe)"
+                                        @(item.attendanceCode == AttendanceCode.Maybe ? "checked" : "")>
                                         <label class="form-check-label" for="inlineRadio2">Maybe</label>
                                     </div>
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="inlineRadioOptions_@item.memberId" id="@item.memberId" data-event-id="@item.eventId" value="@((int)AttendanceCode.Attending)" @(item.attendanceCode == AttendanceCode.Attending ? "checked" : "")>
+                                        <input class="form-check-input" type="radio"
+                                            name="inlineRadioOptions_@item.memberId" id="@item.memberId"
+                                            data-event-id="@item.eventId" value="@((int)AttendanceCode.Attending)"
+                                        @(item.attendanceCode == AttendanceCode.Attending ? "checked" : "")>
                                         <label class="form-check-label" for="inlineRadio3">Attending</label>
                                     </div>
                                 </td>
@@ -47,8 +57,3 @@
         </div>
     </div>
 </div>
-
-
-
-
-

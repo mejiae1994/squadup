@@ -16,16 +16,19 @@ $(document).ready(function () {
         updateEventAttendance();
     });
 
+    $(document).on('click', '#deleteSquadMember', function (e) {
+        e.preventDefault();
+        var memberId = $(this).data('member-id');
+        console.log(memberId);
+        deleteSquadMember(memberId);
+    });
+
 
     function updateEventAttendance() {
         $("input[type=radio]:checked").each(function () {
             let memberId = $(this)[0].id
             let attendanceCode = $(this).val();
             let eventId = $(this).data("event-id");
-
-            console.log(memberId);
-            console.log(attendanceCode);
-            console.log(eventId);
            
             $.ajax({
                 url: "/squad/UpdateEventAttendance", 
@@ -33,7 +36,7 @@ $(document).ready(function () {
                 data: { memberId: memberId, attendanceCode: attendanceCode, eventId: eventId },
                 success: function (data) {
                     // Handle success, e.g., show a confirmation message
-                    alert("Attendance updated successfully!");
+                    console.log("Attendance updated successfully!");
                 },
                 error: function (error) {
                     
@@ -41,21 +44,38 @@ $(document).ready(function () {
                 }
             });
         });
+        alert("Attendance updated successfully!");
     }
 
-
     function loadEventAttendance(eventId) {
-
         $.ajax({
             url: "/squad/GetEventAttendance?eventId=" + eventId,
             type: "GET",
             success: function (data) {
-                // Populate the modal body with the data
-
-                // Open the modal
                 $("#eventAttendanceContainer").html(data);
                 $("#eventAttendanceModal").modal("show");
+            },
+            error: function (error) {
+                // Handle errors if needed
+                console.log(error);
+            }
+        });
+    }
 
+    function deleteSquadMember(memberId) {
+        $.ajax({
+            url: "/squad/DeleteSquadMember",
+            type: "POST",
+            data: { memberId: memberId},
+            success: function (data) {
+                // Populate the modal body with the data
+                if (data.success) {
+                    console.log('true')
+                    window.location.reload()
+                }
+                else {
+                    alert(data.message)
+                }
             },
             error: function (error) {
                 // Handle errors if needed
