@@ -28,17 +28,11 @@ namespace squadup.Controllers
             {
                 return View(squadViewData);
             }
-
-            squadViewData = _groupRepository.GetSingleSquad(slug);
-
-            if (squadViewData != null)
-            {
-                return View(squadViewData);
-            }
             else
             {
+                squadViewData = _groupRepository.GetSingleSquad(slug);
                 TempData["SuccessMessage"] = $"No squad found for the following code: {slug}";
-                return View();
+                return View(squadViewData);
             }
         }
 
@@ -51,18 +45,36 @@ namespace squadup.Controllers
                 // Redirect to the GET action with the provided slug
                 return RedirectToAction("Index", "Squad", new { slug = squad.slug });
             }
-
-            // If the slug is empty, you can handle it as needed, e.g., show an error message
-            TempData["ErrorMessage"] = "Slug cannot be empty.";
-
-            // Redirect back to the GET action without a slug
-            return RedirectToAction("Index", "Squad");
+            else
+            {
+                TempData["ErrorMessage"] = "Slug cannot be empty.";
+                return RedirectToAction("Index", "Squad");
+            }
         }
 
         [HttpPost]
         public IActionResult Destination(FormInputModel.SquadEvent squadEvent)
         {
             string slugId = _groupRepository.AddSquadEvent(squadEvent);
+
+            if (!string.IsNullOrEmpty(slugId))
+            {
+                return RedirectToAction("Index", "Squad", new { slug = slugId });
+            }
+
+            // If the slug is empty, you can handle it as needed, e.g., show an error message
+            TempData["ErrorMessage"] = "Can't create squad event";
+
+            // Redirect back to the GET action without a slug
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult DeleteEvent()
+        {
+            string eventId = Request.Form["eventId"];
+
+            string slugId = _groupRepository.DeleteSquadEvent(long.Parse(eventId));
 
             if (!string.IsNullOrEmpty(slugId))
             {
@@ -110,6 +122,20 @@ namespace squadup.Controllers
             }
 
             return Json(new { success = false, message = "Failed to delete member" });
+        }
+
+
+        [HttpPost]
+        public IActionResult AddSquadMember(long squadId, string squadMember)
+        {
+            bool success = _groupRepository.AddSquadMember(squadId, squadMember);
+
+            if (success)
+            {
+                return Json(new { success = true, message = "Member added" });
+            }
+
+            return Json(new { success = false, message = "Failed to add member" });
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

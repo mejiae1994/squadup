@@ -127,10 +127,6 @@ namespace squadup.Repository
                     var squadMembers = multi.Read<SquadMemberModel>().ToList();
 
                     int attendanceCode = (int)AttendanceCode.NotAttending;
-
-                    //insert each member
-                    //need to figure out why column says it does not exist
-
                     string memberInsertQuery = "INSERT INTO public.eventmemberattendance (eventId, memberId, attendanceCode) VALUES (@eventId, @memberId, @attendancecode)";
 
                     foreach (var member in squadMembers)
@@ -139,6 +135,39 @@ namespace squadup.Repository
                         conn.Execute(memberInsertQuery, new { eventId, member.memberId, attendanceCode }, transaction);
 
                     }
+
+                    // Commit the transaction
+                    transaction.Commit();
+                    return slug;
+                }
+            }
+            catch (Exception ex)
+            {
+                transaction?.Rollback();
+                Console.WriteLine(ex);
+                return null;
+            }
+        }
+
+        public string DeleteSquadEvent(long eventId)
+        {
+            string getSlugQuery = "SELECT s.slug FROM squad s JOIN squadEvent e ON s.squadId = e.squadId WHERE e.eventId = @eventId";
+            string deleteEventQuery = "DELETE FROM squadEvent WHERE eventId = @eventId";
+
+            IDbTransaction transaction = null;
+
+            try
+            {
+                using (var conn = _context.CreateConnection())
+                {
+                    conn.Open();
+                    transaction = conn.BeginTransaction();
+
+                    string slug = conn.Query<string>(getSlugQuery, new { eventId }, transaction).SingleOrDefault();
+                    
+                    //execute first query
+                    conn.Execute(deleteEventQuery, new { eventId }, transaction);
+
 
                     // Commit the transaction
                     transaction.Commit();
@@ -202,15 +231,19 @@ namespace squadup.Repository
                     var squadMembers = multi.Read<SquadMemberModel>().ToList();
                     var squadEvents = multi.Read<SquadEventModel>().ToList();
 
-                    squadModel = new SquadModel()
+
+                    if(squad != null)
                     {
-                        squadId = squad.squadId,
-                        squadName = squad.squadName,
-                        slug = squad.slug,
-                        createdAt = squad.createdAt,
-                        members = squadMembers,
-                        events = squadEvents,
-                    };
+                        squadModel = new SquadModel()
+                        {
+                            squadId = squad.squadId,
+                            squadName = squad.squadName,
+                            slug = squad.slug,
+                            createdAt = squad.createdAt,
+                            members = squadMembers,
+                            events = squadEvents,
+                        };
+                    }
 
                     return squadModel;
                 }
@@ -276,6 +309,45 @@ namespace squadup.Repository
             {
                 Console.WriteLine(ex);
                 return success;
+            }
+        }
+
+        bool IGroupRepository.AddSquadMember(long squadId, string squadMember)
+        {
+            string memberInsertQuery = "INSERT INTO SquadMember (membername, squadid) VALUES (@memberName, @squadId) RETURNING memberId";
+            string getEventQuery = "SELECT e.eventId FROM squadEvent e JOIN squad s ON e.squadId = s.squadId JOIN squadMember mem ON s.squadId = mem.squadId WHERE memberId = @MemberId";
+            string attendanceInsertQuery = "INSERT INTO public.eventmemberattendance (eventId, memberId, attendanceCode) VALUES (@eventId, @memberId, @attendancecode)";
+
+            var memberName = squadMember;
+            int attendanceCode = (int)AttendanceCode.NotAttending;
+            IDbTransaction transaction = null;
+
+            try
+            {
+                using (var conn = _context.CreateConnection())
+                {
+                    conn.Open();
+                    transaction = conn.BeginTransaction();
+
+                    long memberId = conn.ExecuteScalar<long>(memberInsertQuery, new { memberName, squadId }, transaction);
+
+                    IEnumerable<long> eventIds = conn.Query<long>(getEventQuery, new { memberId }, transaction);
+
+                    //for each event that is tied to that squad, I need to insert default row for newly added member
+                    foreach (var eventId in eventIds)
+                    {
+                        conn.Execute(attendanceInsertQuery, new { eventId, memberId, attendanceCode }, transaction);
+                    }
+
+                    transaction.Commit();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                transaction?.Rollback();
+                Console.WriteLine(ex);
+                return false;
             }
         }
     }

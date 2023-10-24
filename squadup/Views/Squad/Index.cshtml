@@ -1,11 +1,15 @@
 ﻿@model squadup.Models.SquadModel
 
-<div class="text-center">
+<div class="text-center"> 
     @Html.Partial("_SquadSearchPartial", new FormInputModel.Squad())
 
     @if (!string.IsNullOrEmpty(Model?.squadName))
     {
         <h1>Squad Page found for @Model.squadName</h1>
+        <button id="copyUrlButton" class="btn btn-outline-success d-flex justify-content-center align-items-center">
+            <img src="~/link.svg" width="24px" height="24px" alt="Copy URL"/>
+            Share Group Link
+        </button>
     }
     else
     {
@@ -18,10 +22,25 @@
             <h1>Empty Squad Page</h1>
         }
     }
-
     <div class="container">
-        <h2 class="mt-4">Squad Members found: @Model?.members?.Count</h2>
+        <div id="squad-container" class="d-flex flex-row align-items-center">
+            <h2 class="mt-4">Squad Members found: @Model?.members?.Count</h2>
+            @if (!string.IsNullOrEmpty(Model?.squadName))
+            {
+                <form id="squadForm">
+                    <div class="d-flex justify-content-center mt-4">
+                        <div class="form-control d-flex flex-row">
+                            <input type="text" id="squadMemberInput" class="form-control" required />
+                            <button type="submit" id="addSquadMember" class="btn btn-primary"
+                                    data-squad-id="@Model?.squadId">
+                                Add Member
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            }
 
+        </div>
         <div class="list-group-container">
             @if (Model?.members?.Count > 0)
             {
@@ -31,7 +50,9 @@
                         <li class="list-group-item">
                             <span>@member.memberName</span>
                             <button id="deleteSquadMember" class="btn btn-danger"
-                                data-member-id="@member.memberId">Delete</button>
+                                    data-member-id="@member.memberId">
+                                Delete
+                            </button>
                         </li>
                     }
                 </ul>
@@ -42,7 +63,6 @@
             }
         </div>
     </div>
-    @* events section *@
     <div class="container">
         <h2 class="mt-4">Squad Events:</h2>
 
@@ -51,11 +71,17 @@
             <ul class="list-group list-group-horizontal gap-4">
                 @foreach (var squadEvent in Model.events)
                 {
-                    <div class="card" style="width: 18rem;" data-event-id="@squadEvent.eventId">
-                        <div class="card-body">
-                            <h5 class="card-title">@squadEvent.eventName</h5>
-                            <p class="card-text">When: @squadEvent.eventDate</p>
+                    <div class="card">
+                        <div id="eventCard" class="card" style="width: 18rem; height: 10rem;" data-event-id="@squadEvent.eventId">
+                            <div class="card-body">
+                                <h5 class="card-title">@squadEvent.eventName</h5>
+                                <p class="card-text">When: @squadEvent.eventDate</p>
+                            </div>
                         </div>
+                        <form method="post" action="/squad/DeleteEvent">
+                            <input type="hidden" name="eventId" value="@squadEvent.eventId">
+                            <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="top" title="Click to delete event">Delete Event</button>
+                        </form>
                     </div>
                 }
             </ul>
@@ -65,10 +91,10 @@
             <p class="mt-4">No Events found.</p>
         }
 
-
         <div id="eventAttendanceContainer"></div>
 
     </div>
+
     <div class="fluid-container mt-4">
         @if (Model?.squadId > 0)
         {
@@ -76,5 +102,17 @@
 
             @Html.Partial("_CreateDestinationPartial", new FormInputModel.SquadEvent())
         }
-    </div>    
+    </div>
+
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header" >
+                <strong class="me-auto text-success">Success</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+               your changes have been saved.
+            </div>
+        </div>
+    </div>
 </div>

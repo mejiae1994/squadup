@@ -95,7 +95,7 @@ namespace squadup.Controllers
 
         public string[] parseCommaString(string unparsedText)
         {
-            string[] nameList = unparsedText.Trim(',').Trim().Split(',');
+            string[] nameList = unparsedText.Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
             return nameList;
         }

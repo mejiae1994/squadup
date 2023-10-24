@@ -14,9 +14,13 @@ namespace squadup.Repository
 
         string AddSquadEvent(FormInputModel.SquadEvent squadEvent);
 
+        string DeleteSquadEvent(long eventId);
+
         void DeleteSquad(string squadId);
 
         bool DeleteSquadMember(long squadMemberId);
+
+        bool AddSquadMember(long squadId, string squadMember);
 
         SquadModel GetSingleSquad(string slugId);
 

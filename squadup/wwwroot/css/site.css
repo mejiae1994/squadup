@@ -35,3 +35,14 @@ body {
     border-radius: .5rem;
     height: 30vh; /* Adjust the height as needed */
 }
+
+#squad-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: baseline;
+}
+
+.tooltip {
+  font-size: 10rem; /* Adjust the font size as needed */
+}
