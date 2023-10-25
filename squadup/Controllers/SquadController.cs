@@ -144,7 +144,7 @@ namespace squadup.Controllers
         [HttpGet("squad/AddGoogleCalendar")]
         public IActionResult AddGoogleCalendar()
         {
-            bool success = _googleService.getCalendarList();
+            bool success = _googleService.insertCalendarEvent();
 
             if (success)
             {
