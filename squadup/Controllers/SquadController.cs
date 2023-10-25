@@ -12,10 +12,13 @@ namespace squadup.Controllers
 
         private readonly IGroupRepository _groupRepository;
 
+        private readonly GoogleService _googleService;
+
         public SquadController(ILogger<SquadController> logger, IGroupRepository groupRepository)
         {
             _logger = logger;
             _groupRepository = groupRepository;
+            _googleService = new GoogleService();
         }
 
         // {slug}? ? makes it optional
@@ -129,6 +132,19 @@ namespace squadup.Controllers
         public IActionResult AddSquadMember(long squadId, string squadMember)
         {
             bool success = _groupRepository.AddSquadMember(squadId, squadMember);
+
+            if (success)
+            {
+                return Json(new { success = true, message = "Member added" });
+            }
+
+            return Json(new { success = false, message = "Failed to add member" });
+        }
+
+        [HttpGet("squad/AddGoogleCalendar")]
+        public IActionResult AddGoogleCalendar()
+        {
+            bool success = _googleService.getCalendarList();
 
             if (success)
             {

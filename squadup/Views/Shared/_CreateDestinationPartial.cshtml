@@ -2,7 +2,8 @@
 
 @{
     long eventSquadId = (long)ViewBag.eventSquadId;
-    string currentDate = DateTime.UtcNow.ToString("yyyy-MM-dd");
+    @* string currentDate = DateTime.UtcNow.ToString("yyyy-MM-dd"); *@
+    string currentDate = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm");
 }
 
 <!-- Button trigger modal -->
@@ -28,7 +29,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="eventDate" class="form-label">Event Date</label>
-                        <input asp-for="eventDate" name="eventDate" type="date" class="form-control" value="@currentDate" id="eventDate">
+                        <input asp-for="eventDate" name="eventDate" type="datetime-local" class="form-control" value="@currentDate" id="eventDate">
                     </div>
                     <div class="mb-3">
                         <input asp-for="squadId" name="squadId" type="hidden" value="@eventSquadId"

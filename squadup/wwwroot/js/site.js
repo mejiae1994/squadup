@@ -35,6 +35,11 @@ $(document).ready(function () {
         deleteSquadMember(memberId);
     });
 
+    $(document).on('click', '#addGoogleCalendar', function (e) {
+        e.preventDefault();
+        addGoogleCalendar();
+    });
+
     $(document).on('click', '#addSquadMember', function (e) {
         e.preventDefault();
         let squdaId = $(this).data('squad-id');
@@ -47,6 +52,19 @@ $(document).ready(function () {
             alert("enter squad member name")
         }
     });
+
+    function addGoogleCalendar() {
+        $.ajax({
+            url: "/squad/AddGoogleCalendar",
+            type: "GET",
+            success: function (data) {
+                console.log("success");
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }
 
     function updateEventAttendance() {
         $("input[type=radio]:checked").each(function () {
