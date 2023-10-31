@@ -62,3 +62,7 @@ CREATE TABLE IF NOT EXISTS public.eventmemberattendance
         ON UPDATE NO ACTION
         ON DELETE CASCADE -- Enable cascading delete on the memberid column
 )
+
+--ALTER TABLE, shareablelink
+ALTER TABLE public.squadevent
+ADD COLUMN shareableLink text;

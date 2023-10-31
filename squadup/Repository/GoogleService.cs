@@ -25,9 +25,9 @@ namespace squadup.Repository
 
         }
 
-        public bool insertCalendarEvent()
+        public string insertCalendarEvent(string eventName, DateTime eventDate)
         {
-            Event newEvent = createEventContext();
+            Event newEvent = createEventContext(eventName);
 
             try
             {
@@ -36,13 +36,13 @@ namespace squadup.Repository
 
                 string shareableEventLink = getShareableLink(createdEvent.HtmlLink);
                 Console.WriteLine("Event created: {0}", shareableEventLink);
+                return shareableEventLink;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
+                return null;
             }
-
-            return true;
         }
 
         public string getShareableLink(string htmlLink)
@@ -55,10 +55,10 @@ namespace squadup.Repository
             return shareableLink;
         }
 
-        public Event createEventContext()
+        public Event createEventContext(string eventName)
         {
 
-            string eventSummary = "test event";
+            string eventSummary = eventName;
             string eventLocation = "Poconos";
             string eventDescription = "Poconos trip have fun";
 

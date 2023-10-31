@@ -141,19 +141,6 @@ namespace squadup.Controllers
             return Json(new { success = false, message = "Failed to add member" });
         }
 
-        [HttpGet("squad/AddGoogleCalendar")]
-        public IActionResult AddGoogleCalendar()
-        {
-            bool success = _googleService.insertCalendarEvent();
-
-            if (success)
-            {
-                return Json(new { success = true, message = "Member added" });
-            }
-
-            return Json(new { success = false, message = "Failed to add member" });
-        }
-
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

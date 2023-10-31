@@ -1,7 +1,7 @@
-﻿using System.Data;
-using Dapper;
+﻿using Dapper;
 using squadup.Models;
 using squadup.Utility;
+using System.Data;
 
 namespace squadup.Repository
 {
@@ -9,10 +9,13 @@ namespace squadup.Repository
     {
 
         public readonly DatabaseContext _context;
+        public readonly GoogleService _googleService;
 
         public GroupRepository(DatabaseContext context)
         {
             _context = context;
+            _googleService = new GoogleService();
+
         }
 
         public long CreateSquad(FormInputModel.Squad squad)
@@ -100,10 +103,9 @@ namespace squadup.Repository
         public string AddSquadEvent(FormInputModel.SquadEvent squadEvent)
         {
             string eventInsertQuery = "INSERT INTO squadevent (eventname, eventdate, squadId) VALUES (@eventName, @eventDate, @squadId)";
-
             string squadQuery = "SELECT * FROM squad WHERE squadId = @squadId";
             string squadMemberQuery = "SELECT * FROM squadmember WHERE squadId = @squadId";
-
+            string updateSquadEventQuery = "UPDATE squadevent SET shareableLink = @shareableLink WHERE eventId = @eventId";
 
             IDbTransaction transaction = null;
 
@@ -119,6 +121,18 @@ namespace squadup.Repository
 
                     // Retrieve the generated eventId (assuming it's a serial column)
                     long eventId = conn.ExecuteScalar<long>("SELECT LASTVAL()", null, transaction);
+
+                    string shareableLink = null;
+                    if (eventId > 0)
+                    {
+                        shareableLink = _googleService.insertCalendarEvent(squadEvent.eventName, squadEvent.eventDate);
+                    }
+
+                    //update squadEvent with shareableLink if calendarEvent was successfully added.
+                    if (!string.IsNullOrEmpty(shareableLink))
+                    {
+                        conn.Query(updateSquadEventQuery, new { shareableLink, eventId }, transaction);
+                    }
 
                     //now I have eventId, squadId, I need to retrieve all members from squadmember
                     var multi = conn.QueryMultiple(squadQuery + ';' + squadMemberQuery, new { squadEvent.squadId }, transaction);
@@ -164,7 +178,7 @@ namespace squadup.Repository
                     transaction = conn.BeginTransaction();
 
                     string slug = conn.Query<string>(getSlugQuery, new { eventId }, transaction).SingleOrDefault();
-                    
+
                     //execute first query
                     conn.Execute(deleteEventQuery, new { eventId }, transaction);
 
@@ -231,8 +245,7 @@ namespace squadup.Repository
                     var squadMembers = multi.Read<SquadMemberModel>().ToList();
                     var squadEvents = multi.Read<SquadEventModel>().ToList();
 
-
-                    if(squad != null)
+                    if (squad != null)
                     {
                         squadModel = new SquadModel()
                         {
@@ -255,7 +268,7 @@ namespace squadup.Repository
             }
         }
 
-        List<EventMemberAttendanceModel> IGroupRepository.UpdateEventMemberAttendance(FormInputModel.EventAttendance attendance)
+        public List<EventMemberAttendanceModel> UpdateEventMemberAttendance(FormInputModel.EventAttendance attendance)
         {
             string updateQuery = "UPDATE eventmemberattendance SET attendanceCode = @attendanceCode WHERE memberId = @memberId AND eventId = @eventId";
             string selectQuery = "SELECT e.attendanceId, e.eventId, ev.eventName, e.memberId, s.memberName, e.attendanceCode FROM eventmemberattendance e JOIN squadmember s on e.memberId = s.memberId JOIN squadevent ev on e.eventId = ev.eventId WHERE e.eventId = @eventId";
@@ -287,7 +300,7 @@ namespace squadup.Repository
             }
         }
 
-        bool IGroupRepository.DeleteSquadMember(long squadMemberId)
+        public bool DeleteSquadMember(long squadMemberId)
         {
             string deleteQuery = "DELETE FROM SquadMember WHERE memberId = @MemberId";
             bool success = false;
@@ -312,7 +325,7 @@ namespace squadup.Repository
             }
         }
 
-        bool IGroupRepository.AddSquadMember(long squadId, string squadMember)
+        public bool AddSquadMember(long squadId, string squadMember)
         {
             string memberInsertQuery = "INSERT INTO SquadMember (membername, squadid) VALUES (@memberName, @squadId) RETURNING memberId";
             string getEventQuery = "SELECT e.eventId FROM squadEvent e JOIN squad s ON e.squadId = s.squadId JOIN squadMember mem ON s.squadId = mem.squadId WHERE memberId = @MemberId";

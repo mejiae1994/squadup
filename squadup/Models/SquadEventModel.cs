@@ -6,9 +6,13 @@ namespace squadup.Models
 
         public string eventName { get; set; }
 
-        public DateTime eventDate {get; set;}
+        public DateTime eventDate { get; set; }
 
         public DateTimeOffset createdAt { get; set; }
+
+        public long squadId { get; set; }
+
+        public string? shareableLink { get; set; }
 
     }
 }
