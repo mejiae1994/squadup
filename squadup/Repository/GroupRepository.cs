@@ -163,9 +163,15 @@ namespace squadup.Repository
             }
         }
 
+        public class SlugAndShareableLink
+        {
+            public string Slug { get; set; }
+            public string ShareableLink { get; set; }
+        }
+
         public string DeleteSquadEvent(long eventId)
         {
-            string getSlugQuery = "SELECT s.slug FROM squad s JOIN squadEvent e ON s.squadId = e.squadId WHERE e.eventId = @eventId";
+            string getSlugLinkQuery = "SELECT s.slug, e.shareableLink FROM squad s JOIN squadEvent e ON s.squadId = e.squadId WHERE e.eventId = @eventId";
             string deleteEventQuery = "DELETE FROM squadEvent WHERE eventId = @eventId";
 
             IDbTransaction transaction = null;
@@ -177,15 +183,28 @@ namespace squadup.Repository
                     conn.Open();
                     transaction = conn.BeginTransaction();
 
-                    string slug = conn.Query<string>(getSlugQuery, new { eventId }, transaction).SingleOrDefault();
+                    SlugAndShareableLink slugLink = conn.Query<SlugAndShareableLink>(getSlugLinkQuery, new { eventId }, transaction).SingleOrDefault();
 
                     //execute first query
-                    conn.Execute(deleteEventQuery, new { eventId }, transaction);
+                    var result = conn.Execute(deleteEventQuery, new { eventId }, transaction);
 
+                    bool deleted = false;
+                    if (!string.IsNullOrEmpty(slugLink.ShareableLink))
+                    {
+                        deleted = _googleService.deleteCalendarEvent(slugLink.ShareableLink);
+                    }
 
+                    if (deleted)
+                    {
+                        Console.WriteLine("google calendar event deleted");
+                    }
+                    else
+                    {
+                        Console.WriteLine("google calendar event not found");
+                    }
                     // Commit the transaction
                     transaction.Commit();
-                    return slug;
+                    return slugLink.Slug;
                 }
             }
             catch (Exception ex)

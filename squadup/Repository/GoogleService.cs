@@ -2,6 +2,7 @@
 using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Services;
+using System.Text;
 
 namespace squadup.Repository
 {
@@ -45,6 +46,23 @@ namespace squadup.Repository
             }
         }
 
+        public bool deleteCalendarEvent(string link)
+        {
+            string eventId = extractEventIdFromLink(link);
+
+            try
+            {
+                EventsResource.DeleteRequest request = _calendarService.Events.Delete(primaryCalendar, eventId);
+                var deleteResponse = request.Execute();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return false;
+            }
+            return true;
+        }
+
         public string getShareableLink(string htmlLink)
         {
             string[] stringParts = htmlLink.Split(new string[] { "event?" }, 2, StringSplitOptions.None);
@@ -53,6 +71,13 @@ namespace squadup.Repository
             string shareableLink = stringParts[0] + firstArgument + stringParts[1] + lastArgument;
 
             return shareableLink;
+        }
+
+        public string extractEventIdFromLink(string link)
+        {
+            string[] stringParts = link.Split(new string[] { "eid=" }, 2, StringSplitOptions.None);
+            string[] stringPartsTwo = stringParts[1].Split(new string[] { "&tmsrc" }, 2, StringSplitOptions.None);
+            return DecodeBase64String(stringPartsTwo[0]).Split(new string[] { " " }, 2, StringSplitOptions.None)[0];
         }
 
         public Event createEventContext(string eventName)
@@ -106,6 +131,12 @@ namespace squadup.Repository
 
             Console.WriteLine(calListRequest);
             return true;
+        }
+
+        public string DecodeBase64String(string encoded)
+        {
+            var base64EncodedBytes = Convert.FromBase64String(encoded);
+            return Encoding.UTF8.GetString(base64EncodedBytes);
         }
     }
 }
