@@ -66,3 +66,9 @@ CREATE TABLE IF NOT EXISTS public.eventmemberattendance
 --ALTER TABLE, shareablelink
 ALTER TABLE public.squadevent
 ADD COLUMN shareableLink text;
+
+ALTER TABLE squadevent
+ADD COLUMN eventDescription varchar(255) Default 'No Description';
+
+ALTER TABLE squadevent
+ADD EventPrice INT DEFAULT 0;

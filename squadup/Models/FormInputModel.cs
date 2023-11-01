@@ -26,6 +26,10 @@
             public long squadId { get; set; }
 
             public DateTime eventDate { get; set; }
+
+            public string eventDescription { get; set; }
+
+            public int eventPrice { get; set; }
         }
 
         public class EventAttendance

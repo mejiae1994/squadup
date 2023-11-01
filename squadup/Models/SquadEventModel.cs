@@ -14,5 +14,9 @@ namespace squadup.Models
 
         public string? shareableLink { get; set; }
 
+        public string eventDescription { get; set; }
+
+        public int eventPrice { get; set; }
+
     }
 }

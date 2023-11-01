@@ -102,7 +102,16 @@ namespace squadup.Repository
 
         public string AddSquadEvent(FormInputModel.SquadEvent squadEvent)
         {
-            string eventInsertQuery = "INSERT INTO squadevent (eventname, eventdate, squadId) VALUES (@eventName, @eventDate, @squadId)";
+            string eventInsertQuery;
+            if (string.IsNullOrEmpty(squadEvent.eventDescription))
+            {
+                eventInsertQuery = "INSERT INTO squadevent (eventname, eventdate, squadId, eventPrice) VALUES (@eventName, @eventDate, @squadId, @eventPrice)";
+            }
+            else
+            {
+                eventInsertQuery = "INSERT INTO squadevent (eventname, eventdate, squadId, eventDescription, eventPrice) VALUES (@eventName, @eventDate, @squadId, @eventDescription, @eventPrice)";
+            }
+
             string squadQuery = "SELECT * FROM squad WHERE squadId = @squadId";
             string squadMemberQuery = "SELECT * FROM squadmember WHERE squadId = @squadId";
             string updateSquadEventQuery = "UPDATE squadevent SET shareableLink = @shareableLink WHERE eventId = @eventId";
@@ -117,7 +126,7 @@ namespace squadup.Repository
                     transaction = conn.BeginTransaction();
 
                     //execute first query
-                    conn.Execute(eventInsertQuery, new { squadEvent.eventName, squadEvent.eventDate, squadEvent.squadId }, transaction);
+                    conn.Execute(eventInsertQuery, new { squadEvent.eventName, squadEvent.eventDate, squadEvent.squadId, squadEvent.eventDescription, squadEvent.eventPrice }, transaction);
 
                     // Retrieve the generated eventId (assuming it's a serial column)
                     long eventId = conn.ExecuteScalar<long>("SELECT LASTVAL()", null, transaction);
@@ -125,7 +134,7 @@ namespace squadup.Repository
                     string shareableLink = null;
                     if (eventId > 0)
                     {
-                        shareableLink = _googleService.insertCalendarEvent(squadEvent.eventName, squadEvent.eventDate);
+                        shareableLink = _googleService.insertCalendarEvent(squadEvent.eventName, squadEvent.eventDate, squadEvent.eventDescription);
                     }
 
                     //update squadEvent with shareableLink if calendarEvent was successfully added.

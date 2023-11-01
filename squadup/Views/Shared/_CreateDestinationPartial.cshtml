@@ -25,21 +25,25 @@
                     <div class="mb-3">
                         <label for="eventName" class="form-label">Destination name</label>
                         <input asp-for="eventName" name="eventName" type="text" class="form-control" id="eventName"
-                            placeholder="Enter Destination Name" required>
+                               placeholder="Enter Destination Name (Required)" required>
                     </div>
                     <div class="mb-3">
                         <label for="eventDate" class="form-label">Event Date</label>
                         <input asp-for="eventDate" name="eventDate" type="datetime-local" class="form-control" value="@currentDate" id="eventDate">
                     </div>
                     <div class="mb-3">
-                        <input asp-for="squadId" name="squadId" type="hidden" value="@eventSquadId"
-                            class="form-control">
+                        <label for="eventDescription" class="form-label">Event Description (max 255 characters)</label>
+                        <textarea asp-for="eventDescription" name="eventDescription" class="form-control" id="eventDescription" rows="4" maxlength="255" placeholder="Enter Event Description"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventPrice" class="form-label">Price</label>
+                        <input asp-for="eventPrice" name="eventPrice" type="number" class="form-control" id="eventPrice" placeholder="Enter Event Price">
+                    </div>
+                    <div class="mb-3">
+                        <input asp-for="squadId" name="squadId" type="hidden" value="@eventSquadId" class="form-control">
                     </div>
                     <button type="submit" class="btn btn-primary">Create Event</button>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

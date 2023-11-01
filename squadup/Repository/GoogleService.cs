@@ -26,9 +26,9 @@ namespace squadup.Repository
 
         }
 
-        public string insertCalendarEvent(string eventName, DateTime eventDate)
+        public string insertCalendarEvent(string eventName, DateTime eventDate, string eventDescription)
         {
-            Event newEvent = createEventContext(eventName);
+            Event newEvent = createEventContext(eventName, eventDate, eventDescription);
 
             try
             {
@@ -36,7 +36,6 @@ namespace squadup.Repository
                 Event createdEvent = request.Execute();
 
                 string shareableEventLink = getShareableLink(createdEvent.HtmlLink);
-                Console.WriteLine("Event created: {0}", shareableEventLink);
                 return shareableEventLink;
             }
             catch (Exception ex)
@@ -80,15 +79,15 @@ namespace squadup.Repository
             return DecodeBase64String(stringPartsTwo[0]).Split(new string[] { " " }, 2, StringSplitOptions.None)[0];
         }
 
-        public Event createEventContext(string eventName)
+        public Event createEventContext(string eventName, DateTime eventDate, string eventDesc)
         {
-
             string eventSummary = eventName;
-            string eventLocation = "Poconos";
-            string eventDescription = "Poconos trip have fun";
+            string eventLocation = "Catskill NY";
+            string eventDescription = eventDesc;
 
-            string start = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:sszzz");
-            string end = DateTime.UtcNow.AddDays(1).ToString("yyyy-MM-ddTHH:mm:sszzz");
+            //string start = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:sszzz");
+            string start = eventDate.ToString("yyyy-MM-ddTHH:mm:sszzz");
+            string end = DateTime.Parse(start).AddDays(1).ToString("yyyy-MM-ddTHH:mm:sszzz");
 
             EventDateTime startDate = new EventDateTime()
             {
@@ -105,7 +104,6 @@ namespace squadup.Repository
             Event newEvent = new Event()
             {
                 Summary = eventSummary,
-                Location = eventLocation,
                 Description = eventDescription,
                 Start = startDate,
                 End = endDate,
