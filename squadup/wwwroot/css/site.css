@@ -46,3 +46,8 @@ body {
 .tooltip {
   font-size: 10rem; /* Adjust the font size as needed */
 }
+
+.checkbox-size {
+    width: 2rem;
+    height: 2.3rem;
+}

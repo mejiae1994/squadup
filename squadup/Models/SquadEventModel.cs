@@ -18,5 +18,7 @@ namespace squadup.Models
 
         public int eventPrice { get; set; }
 
+        public bool isSplitPrice { get; set; }
+
     }
 }

@@ -105,11 +105,11 @@ namespace squadup.Repository
             string eventInsertQuery;
             if (string.IsNullOrEmpty(squadEvent.eventDescription))
             {
-                eventInsertQuery = "INSERT INTO squadevent (eventname, eventdate, squadId, eventPrice) VALUES (@eventName, @eventDate, @squadId, @eventPrice)";
+                eventInsertQuery = "INSERT INTO squadevent (eventname, eventdate, squadId, eventPrice, isSplitPrice) VALUES (@eventName, @eventDate, @squadId, @eventPrice, @isSplitPrice)";
             }
             else
             {
-                eventInsertQuery = "INSERT INTO squadevent (eventname, eventdate, squadId, eventDescription, eventPrice) VALUES (@eventName, @eventDate, @squadId, @eventDescription, @eventPrice)";
+                eventInsertQuery = "INSERT INTO squadevent (eventname, eventdate, squadId, eventDescription, eventPrice, isSplitPrice) VALUES (@eventName, @eventDate, @squadId, @eventDescription, @eventPrice, @isSplitPrice)";
             }
 
             string squadQuery = "SELECT * FROM squad WHERE squadId = @squadId";
@@ -126,7 +126,7 @@ namespace squadup.Repository
                     transaction = conn.BeginTransaction();
 
                     //execute first query
-                    conn.Execute(eventInsertQuery, new { squadEvent.eventName, squadEvent.eventDate, squadEvent.squadId, squadEvent.eventDescription, squadEvent.eventPrice }, transaction);
+                    conn.Execute(eventInsertQuery, new { squadEvent.eventName, squadEvent.eventDate, squadEvent.squadId, squadEvent.eventDescription, squadEvent.eventPrice, squadEvent.isSplitPrice }, transaction);
 
                     // Retrieve the generated eventId (assuming it's a serial column)
                     long eventId = conn.ExecuteScalar<long>("SELECT LASTVAL()", null, transaction);

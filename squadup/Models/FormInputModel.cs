@@ -30,6 +30,8 @@
             public string eventDescription { get; set; }
 
             public int eventPrice { get; set; }
+
+            public bool isSplitPrice { get; set; }
         }
 
         public class EventAttendance
