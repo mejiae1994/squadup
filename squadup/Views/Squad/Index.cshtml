@@ -3,7 +3,7 @@
 <div class="text-center"> 
     @Html.Partial("_SquadSearchPartial", new FormInputModel.Squad())
 
-    @if (!string.IsNullOrEmpty(Model?.squadName))
+    @if (Model != null)
     {
         <h1>Squad Page found for @Model.squadName</h1>
         <button id="copyUrlButton" class="btn btn-outline-success d-flex justify-content-center align-items-center">
@@ -25,7 +25,7 @@
     <div class="container">
         <div id="squad-container" class="d-flex flex-row align-items-center">
             <h2 class="mt-4">Squad Members found: @Model?.members?.Count</h2>
-            @if (!string.IsNullOrEmpty(Model?.squadName))
+            @if (Model != null)
             {
                 <form id="squadForm">
                     <div class="d-flex justify-content-center mt-4">
@@ -41,6 +41,7 @@
             }
 
         </div>
+        @* list of members that belong to the squad *@
         <div class="list-group-container">
             @if (Model?.members?.Count > 0)
             {
@@ -63,64 +64,12 @@
             }
         </div>
     </div>
-    <div class="container">
-        <h2 class="mt-4">Squad Events:</h2>
 
-        @if (Model?.events?.Count > 0)
-        {
-            <ul class="list-group list-group-horizontal gap-4 flex-wrap justify-content-center">
-                @foreach (var squadEvent in Model.events)
-                {
-                    <div class="card">
-                        <div id="eventCard" class="card" style="width: 18rem; height: 10rem;" data-event-id="@squadEvent.eventId">
-                            <div class="card-body">
-                                <h5 class="card-title">@squadEvent.eventName</h5>
-                                <p class="card-text">When: @squadEvent.eventDate</p>
-                                <p class="card-text">@squadEvent.eventDescription</p>
-                                <h6 class="card-subtitle">@((squadEvent.eventPrice > 0) ? (squadEvent.isSplitPrice ? $"{string.Format("${0:0.00}", squadEvent.eventPrice.ToString())} between members" : string.Format("${0:0.00}", squadEvent.eventPrice.ToString())) : "Free")</h6>
-                            </div>
-                        </div>
-                        <div class="d-flex flex-row justify-content-around">
-                            <form method="post" action="/squad/DeleteEvent">
-                                <input type="hidden" name="eventId" value="@squadEvent.eventId">
-                                <button type="submit" class="btn btn-outline-danger btn-sm" data-toggle="tooltip" data-placement="top" title="Click to delete event">Delete Event</button>
-                            </form>
-                            <a target="_blank" href="@squadEvent.shareableLink" class="btn btn-outline-success btn-sm d-flex justify-content-center align-items-center">
-                                <img src="~/calendar.svg" width="24px" height="24px" alt="Copy URL" />
-                                Google Calendar
-                            </a>
-                        </div>
-                    </div>
-                }
-            </ul>
-        }
-        else
-        {
-            <p class="mt-4">No Events found.</p>
-        }
-
-        <div id="eventAttendanceContainer"></div>
-
-    </div>
-
-    <div class="fluid-container mt-4">
-        @if (Model?.squadId > 0)
-        {
-            ViewBag.eventSquadId = Model.squadId;
-
-            @Html.Partial("_CreateDestinationPartial", new FormInputModel.SquadEvent())
-        }
-    </div>
-
-    <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
-        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header" >
-                <strong class="me-auto text-success">Success</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div class="toast-body">
-               your changes have been saved.
-            </div>
-        </div>
-    </div>
+    @* event section *@
+    @* this partial receives a list of events that are part of a squad *@
+    @if (Model != null)
+    {
+        @Html.Partial("_ViewSquadEventListPartial", Model.events)
+    } 
+    
 </div>

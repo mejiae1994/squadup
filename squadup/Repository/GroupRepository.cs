@@ -261,6 +261,9 @@ namespace squadup.Repository
             string squadMemberQuery = "SELECT * FROM squadmember WHERE squadId = (SELECT squadid FROM squad WHERE slug = @slugId LIMIT 1)";
             string eventQuery = "SELECT * FROM squadevent WHERE squadId = (SELECT squadid FROM squad WHERE slug = @slugId LIMIT 1)";
 
+            string eventMemberAttendanceQuery = "SELECT e.attendanceId, e.eventId, ev.eventName, e.memberId, s.memberName, e.attendanceCode FROM eventmemberattendance e JOIN squadmember s on e.memberId = s.memberId JOIN squadevent ev on e.eventId = ev.eventId WHERE e.eventId = @eventId";
+
+            List<EventMemberAttendanceModel> eventMemberAttendance = null;
             SquadModel squadModel = null;
 
             try
@@ -272,6 +275,12 @@ namespace squadup.Repository
                     var squad = multi.Read<SquadModel>().SingleOrDefault();
                     var squadMembers = multi.Read<SquadMemberModel>().ToList();
                     var squadEvents = multi.Read<SquadEventModel>().ToList();
+
+                    foreach (SquadEventModel sEvent in squadEvents)
+                    {
+                        eventMemberAttendance = conn.Query<EventMemberAttendanceModel>(eventMemberAttendanceQuery, new { sEvent.eventId }).ToList();
+                        sEvent.eventMemberAttendance = eventMemberAttendance;
+                    }
 
                     if (squad != null)
                     {

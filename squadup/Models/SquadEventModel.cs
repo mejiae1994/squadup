@@ -2,7 +2,7 @@ namespace squadup.Models
 {
     public class SquadEventModel
     {
-        public string eventId { get; set; }
+        public long eventId { get; set; }
 
         public string eventName { get; set; }
 
@@ -19,6 +19,8 @@ namespace squadup.Models
         public int eventPrice { get; set; }
 
         public bool isSplitPrice { get; set; }
+
+        public List<EventMemberAttendanceModel>? eventMemberAttendance { get; set; }
 
     }
 }
