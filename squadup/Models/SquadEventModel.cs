@@ -22,5 +22,39 @@ namespace squadup.Models
 
         public List<EventMemberAttendanceModel>? eventMemberAttendance { get; set; }
 
+        public int attendingMembers
+        {
+            get
+            {
+                return eventMemberAttendance.Count(em => em.attendanceCode == AttendanceCode.Attending);
+            }
+            private set { }
+        }
+
+        public string memberFee
+        {
+            get
+            {
+                return eventPrice > 0 ? (isSplitPrice ? $"{string.Format("${0:0.00}", eventFee.ToString())} each" : string.Format("${0:0.00} each", eventPrice.ToString())) : "Free";
+            }
+
+            private set { }
+        }
+
+        private int eventFee
+        {
+            get
+            {
+                if (attendingMembers > 0)
+                {
+                    return eventPrice / attendingMembers;
+                }
+                else
+                {
+                    return eventPrice;
+                }
+            }
+        }
+
     }
 }
