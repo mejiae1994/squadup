@@ -2,6 +2,7 @@
 using squadup.Models;
 using squadup.Utility;
 using System.Data;
+using static squadup.Models.FormInputModel;
 
 namespace squadup.Repository
 {
@@ -175,13 +176,22 @@ namespace squadup.Repository
         public class SlugAndShareableLink
         {
             public string Slug { get; set; }
+
             public string ShareableLink { get; set; }
+
+            public long squadId { get; set; }
         }
 
-        public string DeleteSquadEvent(long eventId)
+        public List<SquadEventModel> DeleteSquadEvent(long eventId)
         {
-            string getSlugLinkQuery = "SELECT s.slug, e.shareableLink FROM squad s JOIN squadEvent e ON s.squadId = e.squadId WHERE e.eventId = @eventId";
+            string getSlugLinkQuery = "SELECT s.slug, e.shareableLink, s.squadId FROM squad s JOIN squadEvent e ON s.squadId = e.squadId WHERE e.eventId = @eventId";
             string deleteEventQuery = "DELETE FROM squadEvent WHERE eventId = @eventId";
+
+            string squadEventQuery = "SELECT * FROM squadevent WHERE squadId = @squadId";
+
+            string eventMemberAttendanceQuery = "SELECT e.attendanceId, e.eventId, ev.eventName, e.memberId, s.memberName, e.attendanceCode FROM eventmemberattendance e JOIN squadmember s on e.memberId = s.memberId JOIN squadevent ev on e.eventId = ev.eventId WHERE e.eventId = @eventId";
+
+            List<EventMemberAttendanceModel> eventMemberAttendance = null;
 
             IDbTransaction transaction = null;
 
@@ -196,6 +206,16 @@ namespace squadup.Repository
 
                     //execute first query
                     var result = conn.Execute(deleteEventQuery, new { eventId }, transaction);
+
+                    //grab all the events that are tried to the squad we are currently looking at
+                    List<SquadEventModel> squadEvents = conn.Query<SquadEventModel>(squadEventQuery, new { slugLink.squadId }, transaction).ToList();
+
+                    //embed the list of eventmemberattendance per squadevent in the squadevent list
+                    foreach (SquadEventModel sEvent in squadEvents)
+                    {
+                        eventMemberAttendance = conn.Query<EventMemberAttendanceModel>(eventMemberAttendanceQuery, new { sEvent.eventId }, transaction).ToList();
+                        sEvent.eventMemberAttendance = eventMemberAttendance;
+                    }
 
                     bool deleted = false;
                     if (!string.IsNullOrEmpty(slugLink.ShareableLink))
@@ -213,7 +233,7 @@ namespace squadup.Repository
                     }
                     // Commit the transaction
                     transaction.Commit();
-                    return slugLink.Slug;
+                    return squadEvents;
                 }
             }
             catch (Exception ex)
@@ -305,10 +325,13 @@ namespace squadup.Repository
             }
         }
 
-        public List<EventMemberAttendanceModel> UpdateEventMemberAttendance(FormInputModel.EventAttendance attendance)
+        public List<SquadEventModel> UpdateEventMemberAttendance(List<EventAttendance> eventAttendance)
         {
-            string updateQuery = "UPDATE eventmemberattendance SET attendanceCode = @attendanceCode WHERE memberId = @memberId AND eventId = @eventId";
-            string selectQuery = "SELECT e.attendanceId, e.eventId, ev.eventName, e.memberId, s.memberName, e.attendanceCode FROM eventmemberattendance e JOIN squadmember s on e.memberId = s.memberId JOIN squadevent ev on e.eventId = ev.eventId WHERE e.eventId = @eventId";
+            string updateEventAttendanceQuery = "UPDATE eventmemberattendance SET attendanceCode = @attendanceCode WHERE memberId = @memberId AND eventId = @eventId";
+
+            string squadEventQuery = "SELECT * FROM squadevent WHERE squadId = (SELECT squadId FROM squadEvent WHERE eventId = @eventId LIMIT 1)";
+
+            string eventMemberAttendanceQuery = "SELECT e.attendanceId, e.eventId, ev.eventName, e.memberId, s.memberName, e.attendanceCode FROM eventmemberattendance e JOIN squadmember s on e.memberId = s.memberId JOIN squadevent ev on e.eventId = ev.eventId WHERE e.eventId = @eventId";
 
             List<EventMemberAttendanceModel> eventMemberAttendance = null;
 
@@ -320,12 +343,25 @@ namespace squadup.Repository
                 {
                     conn.Open();
                     transaction = conn.BeginTransaction();
-                    conn.Query(updateQuery, new { attendance.attendanceCode, attendance.memberId, attendance.eventId }, transaction);
+                    //update each member attendance
+                    foreach (EventAttendance attendance in eventAttendance)
+                    {
+                        conn.Query(updateEventAttendanceQuery, new { attendance.attendanceCode, attendance.memberId, attendance.eventId }, transaction);
+                    }
 
-                    eventMemberAttendance = conn.Query<EventMemberAttendanceModel>(selectQuery, new { attendance.eventId }).ToList();
+                    //grab all the events that are tried to the squad we are currently looking at
+                    List<SquadEventModel> squadEvents = conn.Query<SquadEventModel>(squadEventQuery, new { eventAttendance.First().eventId }, transaction).ToList();
+
+                    //embed the list of eventmemberattendance per squadevent in the squadevent list
+                    foreach (SquadEventModel sEvent in squadEvents)
+                    {
+                        eventMemberAttendance = conn.Query<EventMemberAttendanceModel>(eventMemberAttendanceQuery, new { sEvent.eventId }, transaction).ToList();
+                        sEvent.eventMemberAttendance = eventMemberAttendance;
+                    }
 
                     transaction.Commit();
-                    return eventMemberAttendance;
+                    //return list of squadevents that each have a list of squadeventmemberattendace
+                    return squadEvents;
 
                 }
             }

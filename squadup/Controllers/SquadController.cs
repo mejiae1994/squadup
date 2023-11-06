@@ -73,22 +73,11 @@ namespace squadup.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteEvent()
+        public IActionResult DeleteSquadEvent(long eventId)
         {
-            string eventId = Request.Form["eventId"];
+            var squadEvents = _groupRepository.DeleteSquadEvent(eventId);
 
-            string slugId = _groupRepository.DeleteSquadEvent(long.Parse(eventId));
-
-            if (!string.IsNullOrEmpty(slugId))
-            {
-                return RedirectToAction("Index", "Squad", new { slug = slugId });
-            }
-
-            // If the slug is empty, you can handle it as needed, e.g., show an error message
-            TempData["ErrorMessage"] = "Can't create squad event";
-
-            // Redirect back to the GET action without a slug
-            return View();
+            return PartialView("_ViewSquadEventListPartial", squadEvents);
         }
 
         [HttpGet("squad/GetEventAttendance")]
@@ -100,18 +89,11 @@ namespace squadup.Controllers
         }
 
         [HttpPost]
-        public IActionResult UpdateEventAttendance(int memberId, int attendanceCode, int eventId)
+        public IActionResult UpdateEventAttendance(List<EventAttendance> attendanceUpdates)
         {
+            var eventAttendance = _groupRepository.UpdateEventMemberAttendance(attendanceUpdates);
 
-            EventAttendance attendance = new EventAttendance
-            {
-                memberId = memberId,
-                attendanceCode = (AttendanceCode)attendanceCode,
-                eventId = eventId,
-            };
-
-            var eventAttendance = _groupRepository.UpdateEventMemberAttendance(attendance);
-            return PartialView("_ViewEventAttendancePartial", eventAttendance);
+            return PartialView("_ViewSquadEventListPartial", eventAttendance);
         }
 
         [HttpPost]

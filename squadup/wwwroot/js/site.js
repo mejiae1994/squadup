@@ -23,6 +23,11 @@ $(document).ready(function () {
         e.preventDefault();
         updateEventAttendance();
     });
+    $(document).on('click', '#deleteSquadEvent', function (e) {
+        e.preventDefault();
+        var eventId = $(this).data('event-id');
+        deleteSquadEvent(eventId);
+    });
 
     $(document).on('click', '#eventCard', function (e) {
         e.preventDefault();
@@ -57,24 +62,28 @@ $(document).ready(function () {
     });
 
     function updateEventAttendance() {
+        let attendanceList = [];
+
         $("input[type=radio]:checked").each(function () {
-            let memberId = $(this)[0].id
+            let memberId = $(this)[0].id;
             let attendanceCode = $(this).val();
             let eventId = $(this).data("event-id");
 
-            $.ajax({
-                url: "/squad/UpdateEventAttendance", 
-                type: "POST", 
-                data: { memberId: memberId, attendanceCode: attendanceCode, eventId: eventId },
-                success: function (data) {
-                    showToast();
-                },
-                error: function (error) {
-                    console.log(error);
-                }
-            });
+            attendanceList.push({ memberId, attendanceCode, eventId });
         });
 
+        $.ajax({
+            url: "/squad/UpdateEventAttendance",
+            type: "POST",
+            data: { attendanceUpdates: attendanceList },
+            success: function (data) {
+                $("#squadEventListContainer").html(data);
+                showToast();
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
     }
 
     function loadEventAttendance(eventId) {
@@ -84,6 +93,21 @@ $(document).ready(function () {
             success: function (data) {
                 $("#eventAttendanceContainer").html(data);
                 $("#eventAttendanceModal").modal("show");
+            },
+            error: function (error) {
+                // Handle errors if needed
+                console.log(error);
+            }
+        });
+    }
+
+    function deleteSquadEvent(eventId) {
+        $.ajax({
+            url: "/squad/DeleteSquadEvent",
+            type: "POST",
+            data: { eventId: eventId },
+            success: function (data) {
+                $("#squadEventListContainer").html(data);
             },
             error: function (error) {
                 // Handle errors if needed

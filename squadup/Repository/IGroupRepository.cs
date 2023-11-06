@@ -1,4 +1,5 @@
 ﻿using squadup.Models;
+using static squadup.Models.FormInputModel;
 
 namespace squadup.Repository
 {
@@ -10,11 +11,11 @@ namespace squadup.Repository
 
         List<EventMemberAttendanceModel> GetEventMemberAttendance(long eventId);
 
-        List<EventMemberAttendanceModel> UpdateEventMemberAttendance(FormInputModel.EventAttendance attendance);
+        List<SquadEventModel> UpdateEventMemberAttendance(List<EventAttendance> eventAttendance);
 
         string AddSquadEvent(FormInputModel.SquadEvent squadEvent);
 
-        string DeleteSquadEvent(long eventId);
+        List<SquadEventModel> DeleteSquadEvent(long eventId);
 
         void DeleteSquad(string squadId);
 

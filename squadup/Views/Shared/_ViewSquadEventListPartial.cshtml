@@ -21,10 +21,7 @@
                         </div>
                     </div>
                     <div class="d-flex flex-row justify-content-around">
-                        <form method="post" action="/squad/DeleteEvent">
-                            <input type="hidden" name="eventId" value="@squadEvent.eventId">
-                            <button type="submit" class="btn btn-outline-danger btn-sm" data-toggle="tooltip" data-placement="top" title="Click to delete event">Delete Event</button>
-                        </form>
+                        <button id="deleteSquadEvent" data-event-id="@squadEvent.eventId" class="btn btn-outline-danger btn-sm" data-toggle="tooltip" data-placement="top" title="Click to delete event">Delete Event</button>
                         <a target="_blank" href="@squadEvent.shareableLink" class="btn btn-outline-success btn-sm d-flex justify-content-center align-items-center">
                             <img src="~/calendar.svg" width="24px" height="24px" alt="Copy URL" />
                             Google Calendar
