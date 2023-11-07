@@ -41,15 +41,18 @@
 </div>
 
 <div class="fluid-container mt-4">
-    @{
+   
+    @if (ViewBag.squadId != null || Model != null)
+    {
         long squadId = 0;
-        if(Model.Count > 0)
+        if (ViewBag.squadId > 0)
+        {
+            squadId = ViewBag.squadId;
+        }
+        else if(Model.Any())
         {
             squadId = Model.First().squadId;
-        }
-    }
-    @if (squadId > 0)
-    {
+        };
         ViewBag.eventSquadId = squadId;
 
         @Html.Partial("_CreateDestinationPartial", new FormInputModel.SquadEvent())

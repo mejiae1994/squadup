@@ -19,7 +19,7 @@ namespace squadup.Models
         public int eventPrice { get; set; }
 
         public bool isSplitPrice { get; set; }
-
+        //will this break if no members are present but we create an event?
         public List<EventMemberAttendanceModel>? eventMemberAttendance { get; set; }
 
         public int attendingMembers

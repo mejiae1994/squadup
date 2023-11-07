@@ -69,6 +69,7 @@
     @* this partial receives a list of events that are part of a squad *@
     @if (Model != null)
     {
+        ViewBag.squadId = Model.squadId;
         <div id="squadEventListContainer">
             @Html.Partial("_ViewSquadEventListPartial", Model.events)
         </div>

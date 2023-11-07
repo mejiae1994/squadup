@@ -9,14 +9,16 @@ $(document).ready(function () {
     //    loadEventAttendance(eventId);
 
     //});
+  
 
-    $('#eventPrice').on('input', function () {
+    $(document).on('input', '#eventPrice', function (e) {
+        e.preventDefault();
         if ($(this).val() > 0) {
             $('#isSplitPrice').prop('disabled', false);
         } else {
             $('#isSplitPrice').prop('disabled', true);
         }
-    })
+    });
 
     //because the button that triggers this is handle dynamically, we need to use event delegation from top down
     $(document).on('click', '#saveAttendanceButton', function (e) {
