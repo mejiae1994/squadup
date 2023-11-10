@@ -15,7 +15,11 @@
 
         public class SquadMember
         {
+            public long squadId { get; set; }
+
             public string memberName { get; set; }
+
+            public string[]? squadMembers { get; set; }
 
         }
 

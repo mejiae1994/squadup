@@ -398,15 +398,16 @@ namespace squadup.Repository
             }
         }
 
-        public bool AddSquadMember(long squadId, string squadMember)
+        public string AddSquadMember(FormInputModel.SquadMember squadMember)
         {
             string memberInsertQuery = "INSERT INTO SquadMember (membername, squadid) VALUES (@memberName, @squadId) RETURNING memberId";
-            string getEventQuery = "SELECT e.eventId FROM squadEvent e JOIN squad s ON e.squadId = s.squadId JOIN squadMember mem ON s.squadId = mem.squadId WHERE memberId = @MemberId";
+            string squadQuery = "SELECT slug FROM squad WHERE squadId = @squadId";
+            string getEventListQuery = "SELECT e.eventId FROM squadEvent e JOIN squad s ON e.squadId = s.squadId WHERE s.squadId = @squadId";
             string attendanceInsertQuery = "INSERT INTO public.eventmemberattendance (eventId, memberId, attendanceCode) VALUES (@eventId, @memberId, @attendancecode)";
 
-            var memberName = squadMember;
             int attendanceCode = (int)AttendanceCode.NotAttending;
             IDbTransaction transaction = null;
+            List<long> memberIdList = new List<long>();
 
             try
             {
@@ -415,25 +416,36 @@ namespace squadup.Repository
                     conn.Open();
                     transaction = conn.BeginTransaction();
 
-                    long memberId = conn.ExecuteScalar<long>(memberInsertQuery, new { memberName, squadId }, transaction);
+                    //insert each member
+                    foreach (var memberName in squadMember.squadMembers)
+                    {
+                        long memberId = conn.ExecuteScalar<long>(memberInsertQuery, new { memberName, squadMember.squadId }, transaction);
+                        memberIdList.Add(memberId);
+                    }
 
-                    IEnumerable<long> eventIds = conn.Query<long>(getEventQuery, new { memberId }, transaction);
+                    IEnumerable<long> eventIds = conn.Query<long>(getEventListQuery, new { squadMember.squadId }, transaction);
 
                     //for each event that is tied to that squad, I need to insert default row for newly added member
                     foreach (var eventId in eventIds)
                     {
-                        conn.Execute(attendanceInsertQuery, new { eventId, memberId, attendanceCode }, transaction);
+                        for (int i = 0; i < memberIdList.Count(); i++)
+                        {
+                            var memberId = memberIdList.ElementAt(i);
+                            conn.Execute(attendanceInsertQuery, new { eventId, memberId, attendanceCode }, transaction);
+                        }
                     }
 
+                    string slug = conn.QuerySingle<string>(squadQuery, new { squadMember.squadId }, transaction);
+
                     transaction.Commit();
-                    return true;
+                    return slug;
                 }
             }
             catch (Exception ex)
             {
                 transaction?.Rollback();
                 Console.WriteLine(ex);
-                return false;
+                return null;
             }
         }
     }

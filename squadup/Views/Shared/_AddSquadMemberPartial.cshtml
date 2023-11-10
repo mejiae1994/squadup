@@ -1,0 +1,36 @@
+﻿@model FormInputModel.SquadMember
+
+@{
+    var eventSquadId = ViewBag.squadId;
+}
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMemberModal">
+    Add Members
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="exampleModalLongTitle"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Add Members</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="/squad/AddSquadMember">
+                    <div class="mb-3">
+                        <label asp-for="memberName" class="form-label">List of Names (comma/space separated)</label>
+                        <textarea asp-for="memberName" name="memberName" class="form-control"
+                                  id="memberName" rows="3" placeholder="Enter Names" required></textarea>
+                        <div class="mb-3">
+                            <input asp-for="squadId" name="squadId" type="hidden" value="@eventSquadId" class="form-control">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

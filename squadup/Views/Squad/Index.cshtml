@@ -27,19 +27,9 @@
             <h2 class="mt-4">Squad Members found: @Model?.members?.Count</h2>
             @if (Model != null)
             {
-                <form id="squadForm">
-                    <div class="d-flex justify-content-center mt-4">
-                        <div class="form-control d-flex flex-row">
-                            <input type="text" id="squadMemberInput" class="form-control" required />
-                            <button type="submit" id="addSquadMember" class="btn btn-primary"
-                                    data-squad-id="@Model?.squadId">
-                                Add Member
-                            </button>
-                        </div>
-                    </div>
-                </form>
+                ViewBag.squadId = Model.squadId;
+                @Html.Partial("_AddSquadMemberPartial", new FormInputModel.SquadMember())
             }
-
         </div>
         @* list of members that belong to the squad *@
         <div class="list-group-container">

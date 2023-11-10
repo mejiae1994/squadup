@@ -111,16 +111,25 @@ namespace squadup.Controllers
 
 
         [HttpPost]
-        public IActionResult AddSquadMember(long squadId, string squadMember)
+        public IActionResult AddSquadMember(FormInputModel.SquadMember member)
         {
-            bool success = _groupRepository.AddSquadMember(squadId, squadMember);
+            member.squadMembers = parseCommaString(member.memberName);
 
-            if (success)
+            string slugId = _groupRepository.AddSquadMember(member);
+
+            if (!string.IsNullOrEmpty(slugId))
             {
-                return Json(new { success = true, message = "Member added" });
+                return RedirectToAction("Index", "Squad", new { slug = slugId });
             }
 
-            return Json(new { success = false, message = "Failed to add member" });
+            return View();
+        }
+
+        public string[] parseCommaString(string unparsedText)
+        {
+            string[] nameList = unparsedText.Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            return nameList;
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

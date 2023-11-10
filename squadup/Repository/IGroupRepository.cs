@@ -21,7 +21,7 @@ namespace squadup.Repository
 
         bool DeleteSquadMember(long squadMemberId);
 
-        bool AddSquadMember(long squadId, string squadMember);
+        string AddSquadMember(FormInputModel.SquadMember squadmember);
 
         SquadModel GetSingleSquad(string slugId);
 
