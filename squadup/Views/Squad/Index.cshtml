@@ -1,15 +1,14 @@
 ﻿@model squadup.Models.SquadModel
 
-<div class="text-center"> 
-    @Html.Partial("_SquadSearchPartial", new FormInputModel.Squad())
+<div class="text-center">
+    <div class="d-flex flex-row justify-content-evenly align-items-center search-row">
 
+        <h1>Squad Page</h1>
+        @Html.Partial("_SquadSearchPartial", new FormInputModel.Squad())
+    </div>
     @if (Model != null)
     {
-        <h1>Squad Page found for @Model.squadName</h1>
-        <button id="copyUrlButton" class="btn btn-outline-success d-flex justify-content-center align-items-center">
-            <img src="~/link.svg" width="24px" height="24px" alt="Copy URL"/>
-            Share Group Link
-        </button>
+      
     }
     else
     {
@@ -22,31 +21,47 @@
             <h1>Empty Squad Page</h1>
         }
     }
-    <div class="container">
-        <div id="squad-container" class="d-flex flex-row align-items-center">
-            <h2 class="mt-4">Squad Members found: @Model?.members?.Count</h2>
-            @if (Model != null)
-            {
-                ViewBag.squadId = Model.squadId;
-                @Html.Partial("_AddSquadMemberPartial", new FormInputModel.SquadMember())
-            }
+    <div class="container remove-padding">
+        <div class="d-flex flex-row align-items-center justify-content-between">
+            <div class="d-flex flex-row align-items-center gap-2">
+                <h4 >@Model?.members?.Count Squad Members</h4>
+                @if (Model != null)
+                {
+                    ViewBag.squadId = Model.squadId;
+                    @Html.Partial("_AddSquadMemberPartial", new FormInputModel.SquadMember())
+                }
+            </div>
+            <button id="copyUrlButton" class="btn btn-outline-success d-flex justify-content-center align-items-center btn-sm">
+                <img src="~/link.svg" width="24px" height="24px" alt="Copy URL" />
+                Share Group
+            </button>
         </div>
         @* list of members that belong to the squad *@
         <div class="list-group-container">
             @if (Model?.members?.Count > 0)
             {
-                <ul class="list-group">
-                    @foreach (var member in Model.members)
-                    {
-                        <li class="list-group-item">
-                            <span>@member.memberName</span>
-                            <button id="deleteSquadMember" class="btn btn-danger"
-                                    data-member-id="@member.memberId">
-                                Delete
-                            </button>
-                        </li>
-                    }
-                </ul>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="background: grey">Name</th>
+                            <th style="background: grey">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var member in Model.members)
+                        {
+                            <tr>
+                                <td>@member.memberName</td>
+                                <td>
+                                    <button id="deleteSquadMember" class="btn btn-danger btn-sm"
+                                            data-member-id="@member.memberId">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             }
             else
             {

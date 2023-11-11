@@ -36,13 +36,6 @@ body {
     height: 30vh; /* Adjust the height as needed */
 }
 
-#squad-container {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  align-items: baseline;
-}
-
 .tooltip {
   font-size: 10rem; /* Adjust the font size as needed */
 }
@@ -50,4 +43,16 @@ body {
 .checkbox-size {
     width: 2rem;
     height: 2.3rem;
+}
+
+.search-row {
+    background-color: lightgrey;
+    border-radius: .2rem;
+}
+
+
+thead th {position: sticky; top: 0;}
+
+.remove-padding {
+    padding: 0;
 }

@@ -2,10 +2,9 @@
 
 <form method="post" action="/squad/index">
     <div class="form-group">
-        <label for="groupId">Search your group by entering your group code</label>
-        <div class="form-group">
-            <input type="text" asp-for="slug" name="slug" class="form-control" />
-        </div>
+        <div class="d-flex flex-row gap-1">
+            <input type="text" asp-for="slug" name="slug" class="form-control" placeholder="Entering your group code" />
         <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
     </div>
 </form>

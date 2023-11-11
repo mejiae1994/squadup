@@ -3,14 +3,6 @@
 
 // Write your JavaScript code.
 $(document).ready(function () {
-    //$('#eventCard').click(function (e) {
-    //    e.preventDefault();
-    //    var eventId = $(this).data('event-id');
-    //    loadEventAttendance(eventId);
-
-    //});
-  
-
     $(document).on('input', '#eventPrice', function (e) {
         e.preventDefault();
         if ($(this).val() > 0) {
