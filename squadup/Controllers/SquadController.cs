@@ -29,12 +29,16 @@ namespace squadup.Controllers
             SquadModel squadViewData = null;
             if (string.IsNullOrEmpty(slug))
             {
+                TempData["SuccessMessage"] = $"No squad found";
                 return View(squadViewData);
             }
             else
             {
                 squadViewData = _groupRepository.GetSingleSquad(slug);
-                TempData["SuccessMessage"] = $"No squad found for the following code: {slug}";
+                if (squadViewData == null)
+                {
+                    TempData["SuccessMessage"] = $"No squad found for: {slug}";
+                }
                 return View(squadViewData);
             }
         }

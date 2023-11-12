@@ -12,8 +12,14 @@
                 <div class="card">
                     <div id="eventCard" class="card" style="width: 18rem; height: 14rem;" data-event-id="@squadEvent.eventId">
                         <div class="card-body">
-                            <h5 class="card-title">@squadEvent.eventName</h5>
-                            <p class="card-text">When: @squadEvent.eventDate</p>
+                            <h5 class="card-title">
+                                @squadEvent.eventName 
+                                @if (squadEvent.isOverdue)
+                                {
+                                    <span class="badge rounded-pill bg-secondary p-1" style="font-size: .5em">Overdue</span>
+                                }
+                            </h5>
+                            <p class="card-text">When: @squadEvent.localDate</p>
                             <p class="card-text">@squadEvent.eventDescription</p>
                             @* move the findall to the model? property that returns members going, not going, maybe? *@
                             <span>@($"{squadEvent.attendingMembers} members attending")</span>

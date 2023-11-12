@@ -2,15 +2,15 @@
 {
     public class DateUtility
     {
-        public static T convertDateToLocal<T>(T time)
+        public static DateTime convertDateToLocal<T>(T time)
         {
             if (time is DateTime dateTime)
             {
-                return (T)(object)dateTime.ToLocalTime().ToString();
+                return (DateTime)(object)dateTime.ToLocalTime().ToString();
             }
             else if (time is DateTimeOffset dateTimeOffset)
             {
-                return (T)(object)dateTimeOffset.ToLocalTime();
+                return (DateTime)(object)dateTimeOffset.ToLocalTime().ToString();
             }
             else
             {

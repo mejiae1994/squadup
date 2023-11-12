@@ -56,5 +56,25 @@ namespace squadup.Models
             }
         }
 
+        public bool isOverdue
+        {
+            get
+            {
+                return eventDate < DateTime.UtcNow;
+            }
+
+            private set { }
+        }
+
+        public DateTime localDate
+        {
+            get
+            {
+
+                return eventDate.ToLocalTime();
+            }
+            private set { }
+        }
+
     }
 }
