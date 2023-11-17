@@ -3,27 +3,46 @@ using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Services;
 using System.Text;
+using System.Text.Json;
 
 namespace squadup.Repository
 {
     public class GoogleService
     {
-
-        private const string client_secret_path = "secret_service.json";
-        private const string primaryCalendar = "10474eeb3b2ed928bda49df3542100b9ea20aa153427e03d274fd2c22d13b7cd@group.calendar.google.com";
+        private string primaryCalendar;
         private readonly CalendarService _calendarService;
 
         public GoogleService()
         {
 
-            var credential = GoogleCredential.FromFile(client_secret_path).CreateScoped(CalendarService.Scope.Calendar);
+            var config = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
+
+            var credentialJson = new
+            {
+                type = "service_account",
+                project_id = config["GoogleCalendarApi:ProjectId"],
+                private_key_id = config["GoogleCalendarApi:PrivateKeyId"],
+                private_key = config["GoogleCalendarApi:PrivateKey"].Replace("\\n", "\n"),
+                client_email = config["GoogleCalendarApi:ClientEmail"],
+                client_id = config["GoogleCalendarApi:ClientId"],
+                auth_uri = "https://accounts.google.com/o/oauth2/auth",
+                token_uri = "https://oauth2.googleapis.com/token",
+                auth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs",
+                client_x509_cert_url = config["GoogleCalendarApi:CertUrl"],
+                universe_domain = "googleapis.com",
+            };
+
+            var client_json = JsonSerializer.Serialize(credentialJson);
+            GoogleCredential credentials = GoogleCredential.FromJson(client_json);
+            var credential = credentials.CreateScoped(CalendarService.Scope.Calendar);
+
+            primaryCalendar = config["GoogleCalendarApi:CalendarId"];
 
             // Create the CalendarService instance using the ServiceAccountCredential
             _calendarService = new CalendarService(new BaseClientService.Initializer
             {
                 HttpClientInitializer = credential
             });
-
         }
 
         public string insertCalendarEvent(string eventName, DateTime eventDate, string eventDescription)
@@ -110,25 +129,6 @@ namespace squadup.Repository
             };
 
             return newEvent;
-        }
-
-        public bool getCalendarList()
-        {
-            dynamic calListRequest = null;
-
-            string eventTwo = "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g6go46ghg8p0k8h9n6ssk8e9g64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g8krk4c9m64pj0dhi8ksj4dhk6l0j2g9j8l1kachg6csj0dq184o0";
-
-            try
-            {
-                calListRequest = _calendarService.Events.Get(primaryCalendar, eventTwo).Execute();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-
-            Console.WriteLine(calListRequest);
-            return true;
         }
 
         public string DecodeBase64String(string encoded)

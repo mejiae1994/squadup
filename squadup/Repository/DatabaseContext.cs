@@ -1,6 +1,5 @@
-﻿using System.Data;
-using Microsoft.Extensions.Configuration;
-using Npgsql;
+﻿using Npgsql;
+using System.Data;
 
 namespace squadup.Repository
 {
@@ -12,7 +11,7 @@ namespace squadup.Repository
         public DatabaseContext(IConfiguration configuration)
         {
             _configuration = configuration;
-            _connectionString = _configuration.GetConnectionString("DefaultConnection");
+            _connectionString = _configuration["Sensitive:DefaultConnection"];
         }
 
         public IDbConnection CreateConnection() => new NpgsqlConnection(_connectionString);

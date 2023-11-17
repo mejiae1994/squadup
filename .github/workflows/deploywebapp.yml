@@ -1,0 +1,13 @@
+# deploy mvc web app to azure using github actions
+
+name: Deploy Squadup MVC
+
+on:
+    workflow_dispatch:
+
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        
+

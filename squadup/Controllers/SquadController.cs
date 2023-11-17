@@ -12,13 +12,10 @@ namespace squadup.Controllers
 
         private readonly IGroupRepository _groupRepository;
 
-        private readonly GoogleService _googleService;
-
         public SquadController(ILogger<SquadController> logger, IGroupRepository groupRepository)
         {
             _logger = logger;
             _groupRepository = groupRepository;
-            _googleService = new GoogleService();
         }
 
         // {slug}? ? makes it optional
