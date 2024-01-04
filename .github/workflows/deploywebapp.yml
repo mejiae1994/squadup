@@ -5,6 +5,8 @@ name: Deploy Squadup MVC
 on:
     workflow_dispatch:
 
+env:
+    AZURE_WEBAPP_NAME: squadup-app        
 
 jobs:
     build:
@@ -26,3 +28,17 @@ jobs:
             - name: build project
               run:
                 dotnet build --configuration Release
+            
+            # publish project
+            - name: publish
+              run:
+                dotnet publish -c Release --no-build --output ./publish
+
+            # deploy project
+            - name: deploy
+              uses: azure/webapps-deploy@v2
+              with: 
+                app-name: ${{ env.AZURE_WEBAPP_NAME }} # Replace with your app name
+                publish-profile: ${{ secrets.SQUADUP_SECRET  }} # Define secret variable in repository settings as per action documentation
+                package: ./publish
+
