@@ -1,9 +1,7 @@
 ﻿@model squadup.Models.SquadModel
 
 <div class="text-center">
-    <div class="d-flex flex-row justify-content-evenly align-items-center search-row">
-
-        <h1>Squad Page</h1>
+    <div class="d-flex flex-row justify-content-end align-items-center search-row">
         @Html.Partial("_SquadSearchPartial", new FormInputModel.Squad())
     </div>
     @if (Model != null)
