@@ -11,7 +11,7 @@ namespace squadup.Repository
         public DatabaseContext(IConfiguration configuration)
         {
             _configuration = configuration;
-            _connectionString = _configuration["Sensitive:DefaultConnection"];
+            _connectionString = _configuration["DefaultConnection"];
         }
 
         public IDbConnection CreateConnection() => new NpgsqlConnection(_connectionString);

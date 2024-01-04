@@ -12,11 +12,10 @@ namespace squadup.Repository
         public readonly DatabaseContext _context;
         public readonly GoogleService _googleService;
 
-        public GroupRepository(DatabaseContext context)
+        public GroupRepository(DatabaseContext context, IConfiguration configuration)
         {
             _context = context;
-            _googleService = new GoogleService();
-
+            _googleService = new GoogleService(configuration);
         }
 
         public long CreateSquad(FormInputModel.Squad squad)

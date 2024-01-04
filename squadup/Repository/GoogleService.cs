@@ -12,10 +12,9 @@ namespace squadup.Repository
         private string primaryCalendar;
         private readonly CalendarService _calendarService;
 
-        public GoogleService()
+        public GoogleService(IConfiguration configuration)
         {
-
-            var config = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
+            var config = configuration;
 
             var credentialJson = new
             {
@@ -41,7 +40,8 @@ namespace squadup.Repository
             // Create the CalendarService instance using the ServiceAccountCredential
             _calendarService = new CalendarService(new BaseClientService.Initializer
             {
-                HttpClientInitializer = credential
+                HttpClientInitializer = credential,
+                ApplicationName = "Squadup Web App",
             });
         }
 
